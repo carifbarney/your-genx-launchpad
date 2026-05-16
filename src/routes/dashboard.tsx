@@ -179,7 +179,8 @@ function ToolPanel({
     e.preventDefault();
     if (streaming || disabled) return;
 
-    let payload: Parameters<typeof generate>[0]["data"];
+    type GenInput = Parameters<typeof generateXcelerateResponse>[0]["data"];
+    let payload: GenInput;
     if (tool === "starting_point") {
       if (!niche.trim() || !roadblock.trim() || !day.trim()) { setErrorMsg("Please fill in all three fields."); return; }
       payload = { tool: "starting_point", niche, roadblock, day };
