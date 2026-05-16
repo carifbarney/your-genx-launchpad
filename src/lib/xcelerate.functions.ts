@@ -120,6 +120,13 @@ export const getUserPlan = createServerFn({ method: "GET" })
     return { plan: data ?? null };
   });
 
+export const clearUserPlan = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await supabaseAdmin.from("user_plans").delete().eq("user_id", context.userId);
+    return { ok: true };
+  });
+
 async function upsertPlan(userId: string, patch: Record<string, string | null>) {
   await supabaseAdmin.from("user_plans").upsert(
     { user_id: userId, ...patch },
