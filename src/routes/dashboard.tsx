@@ -459,6 +459,15 @@ function ToolPanel({
                 </div>
               )}
               <div className="prose-xcel text-[17px] leading-[1.75] text-foreground">{renderMarkdown(output)}</div>
+              {!streaming && tool === "product" && (
+                <BuildItWithAI output={output} plan={plan} />
+              )}
+              {!streaming && tool === "storefront" && (
+                <StorefrontWalkthrough />
+              )}
+              {!streaming && tool === "launch_plan" && (
+                <LaunchCalendar output={output} />
+              )}
               {!streaming && (
                 <div className="mt-6 flex flex-wrap gap-2">
                   <button onClick={handleCopy} className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-base font-semibold transition hover:border-foreground/40 hover:bg-accent">
@@ -619,5 +628,289 @@ function splitBold(line: string): ReactNode {
     part.startsWith("**") && part.endsWith("**")
       ? <strong key={i} className="font-bold">{part.slice(2, -2)}</strong>
       : <span key={i}>{part}</span>
+  );
+}
+
+// ===== Build-it-with-AI launchers (Product step) =====
+function BuildItWithAI({ output, plan }: { output: string; plan: PlanRow }) {
+  const niche = plan?.niche ?? "";
+  const prompt = [
+    `You are helping me actually BUILD the digital product described below. I'm a beginner — walk me through it step by step, write the actual content for me, and don't assume technical knowledge.`,
+    ``,
+    `MY NICHE: ${niche || "(see below)"}`,
+    ``,
+    `THE PRODUCT BLUEPRINT MY COACH GAVE ME:`,
+    output,
+    ``,
+    `START BY: writing the full first section/module of this product for me, in a friendly, conversational voice my audience will love. Then ask me one question before continuing to section 2.`,
+  ].join("\n");
+
+  const encoded = encodeURIComponent(prompt);
+  const links = [
+    { label: "Open in ChatGPT", emoji: "💬", href: `https://chat.openai.com/?q=${encoded}` },
+    { label: "Open in Claude", emoji: "🧠", href: `https://claude.ai/new?q=${encoded}` },
+    { label: "Open in Gemini", emoji: "✨", href: `https://gemini.google.com/app?q=${encoded}` },
+  ];
+
+  const [copied, setCopied] = useState(false);
+  const copyPrompt = async () => {
+    await navigator.clipboard.writeText(prompt);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="mt-8 rounded-2xl border-2 border-dashed border-[oklch(0.62_0.27_348/0.4)] bg-[oklch(0.62_0.27_348/0.05)] p-6">
+      <div className="mb-4 flex items-start gap-3">
+        <span className="text-3xl">🚀</span>
+        <div>
+          <h3 className="text-xl font-extrabold text-foreground">Now let's actually BUILD it</h3>
+          <p className="mt-1 text-base text-muted-foreground">
+            Tap a button below. We'll hand your blueprint to an AI that'll write the actual product with you — one section at a time. Free to use.
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        {links.map((l) => (
+          <a
+            key={l.label}
+            href={l.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-xl border-2 border-border bg-white px-5 py-3 text-base font-bold text-slate-900 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[oklch(0.62_0.27_348)] hover:shadow-md"
+          >
+            <span className="text-xl">{l.emoji}</span> {l.label}
+          </a>
+        ))}
+        <button
+          onClick={copyPrompt}
+          className="inline-flex items-center gap-2 rounded-xl border-2 border-border bg-background px-5 py-3 text-base font-bold transition hover:border-foreground/40"
+        >
+          {copied ? "✓ Copied prompt!" : "📋 Copy the prompt"}
+        </button>
+      </div>
+      <p className="mt-4 text-sm text-muted-foreground">
+        💡 New to AI chat tools? ChatGPT is the most beginner-friendly — start there. You'll just see your prompt waiting in the chat box. Hit send and start building.
+      </p>
+    </div>
+  );
+}
+
+// ===== Storefront walkthrough (videos + step cards) =====
+function StorefrontWalkthrough() {
+  // Curated YouTube tutorials — pick known walkthroughs for Beacons + Stan Store
+  const videos = [
+    { id: "wbWtUDfpacE", title: "Beacons.ai — Complete Beginner Walkthrough", platform: "Beacons" },
+    { id: "AKLBcaQ-GtI", title: "Stan Store — Set Up From Scratch", platform: "Stan Store" },
+  ];
+  const steps = [
+    { n: 1, t: "Create your account", d: 'Go to beacons.ai (or stan.store). Sign up with the email you check every day — not a random one. Pick a username that\'s your name or your niche (e.g. @ClaireAtHome).' },
+    { n: 2, t: "Add a real profile photo", d: "Take a fresh selfie in good light, smiling. No logo, no stock image. People buy from faces they trust." },
+    { n: 3, t: "Write your one-line bio", d: 'Format: "I help [who] do [what] without [the pain point]." Example: "I help busy moms get dinner on the table in 20 minutes — without takeout guilt."' },
+    { n: 4, t: "Add your free thing first", d: "Before you sell anything, give a free PDF or checklist in exchange for an email. This is your list. Your list is the business." },
+    { n: 5, t: "Add your product block", d: "Upload your PDF/guide, set the price, write a 2-sentence pitch. Don't overthink the description — short beats clever." },
+    { n: 6, t: "Test it on your phone", d: "Open your link on your phone. Tap every button. Buy your own product with PayPal. If it works for you, it works for them." },
+  ];
+  return (
+    <div className="mt-8 space-y-6">
+      <div className="rounded-2xl border-2 border-dashed border-[oklch(0.55_0.22_295/0.4)] bg-[oklch(0.55_0.22_295/0.05)] p-6">
+        <div className="mb-4 flex items-start gap-3">
+          <span className="text-3xl">📺</span>
+          <div>
+            <h3 className="text-xl font-extrabold text-foreground">Watch someone set it up first</h3>
+            <p className="mt-1 text-base text-muted-foreground">
+              Seeing it done makes everything click. Pick the platform you're using, watch once start to finish, then come back and do yours.
+            </p>
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {videos.map((v) => (
+            <div key={v.id} className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+              <div className="relative aspect-video bg-black">
+                <iframe
+                  src={`https://www.youtube.com/embed/${v.id}`}
+                  title={v.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="absolute inset-0 h-full w-full"
+                />
+              </div>
+              <div className="p-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{v.platform}</p>
+                <p className="mt-1 text-sm font-semibold text-foreground">{v.title}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border-2 border-dashed border-[oklch(0.65_0.22_35/0.4)] bg-[oklch(0.65_0.22_35/0.05)] p-6">
+        <div className="mb-5 flex items-start gap-3">
+          <span className="text-3xl">🛠️</span>
+          <div>
+            <h3 className="text-xl font-extrabold text-foreground">The 6-step setup, plain and simple</h3>
+            <p className="mt-1 text-base text-muted-foreground">Knock these out in one sitting. ~45 minutes total.</p>
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {steps.map((s) => (
+            <div key={s.n} className="rounded-xl border border-border bg-white p-4 shadow-sm">
+              <div className="flex items-start gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-extrabold text-white" style={{ background: "var(--gradient-brand)" }}>{s.n}</span>
+                <div>
+                  <p className="text-base font-bold text-slate-900">{s.t}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-600">{s.d}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== Launch calendar (parsed 30-day grid + platform basics) =====
+function LaunchCalendar({ output }: { output: string }) {
+  // Parse "**Day N:** ..." lines out of the markdown
+  const days = useMemo(() => {
+    const found: { day: number; text: string }[] = [];
+    const re = /\*\*Day\s+(\d+):?\*\*\s*([^\n]+)/gi;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(output)) !== null) {
+      found.push({ day: parseInt(m[1], 10), text: m[2].trim() });
+    }
+    return found.sort((a, b) => a.day - b.day);
+  }, [output]);
+
+  // Detect recommended platform from output
+  const platform = useMemo(() => {
+    const o = output.toLowerCase();
+    if (o.includes("instagram")) return "instagram";
+    if (o.includes("facebook")) return "facebook";
+    if (o.includes("pinterest")) return "pinterest";
+    if (o.includes("tiktok")) return "tiktok";
+    return null;
+  }, [output]);
+
+  const basics: Record<string, { title: string; steps: string[] }> = {
+    instagram: {
+      title: "Instagram basics — how to actually post",
+      steps: [
+        "Open the Instagram app. Tap the **+** at the bottom of the screen.",
+        'Choose **Post** for a photo, **Reel** for a short video, or **Story** for a 24-hour update.',
+        "Pick or record your content. Hit Next.",
+        "Paste your caption (we wrote one for you above). Add 5–10 hashtags at the bottom.",
+        "Tap **Share**. Done. Reply to every comment in the first hour — Instagram rewards it.",
+      ],
+    },
+    facebook: {
+      title: "Facebook basics — how to actually post",
+      steps: [
+        "Open Facebook. On the home screen, tap **What's on your mind?**.",
+        "Type or paste your post. Add a photo with the photo icon.",
+        "Set who can see it (Public for growth, Friends for warmth).",
+        "Tap **Post**. For a group, post inside the group instead — engagement is much higher.",
+        "Come back 30 minutes later and reply to every comment.",
+      ],
+    },
+    pinterest: {
+      title: "Pinterest basics — how to actually post",
+      steps: [
+        "Open Pinterest. Tap the **+** in the bottom right and choose **Pin**.",
+        "Upload a tall vertical image (1000x1500 works best — make it in Canva).",
+        "Write a keyword-rich title. Pinterest is a search engine, not a feed.",
+        "Add a description with 3–5 relevant keywords. Paste your link.",
+        "Pick a board that matches the topic. Tap **Publish**.",
+      ],
+    },
+    tiktok: {
+      title: "TikTok basics — how to actually post",
+      steps: [
+        "Open TikTok. Tap the **+** at the bottom center.",
+        "Record up to 60 seconds, or upload a clip from your phone.",
+        "Add trending audio (tap the music icon at the top — pick something with under 100k uses).",
+        "Write a hook in the first 3 seconds of your caption. Add 3–5 hashtags.",
+        "Tap **Post**. Don't delete a video that flops — leave it. Post again tomorrow.",
+      ],
+    },
+  };
+
+  return (
+    <div className="mt-8 space-y-6">
+      {days.length > 0 && (
+        <div className="rounded-2xl border-2 border-dashed border-[oklch(0.62_0.27_348/0.4)] bg-[oklch(0.62_0.27_348/0.05)] p-6">
+          <div className="mb-5 flex items-start gap-3">
+            <span className="text-3xl">📅</span>
+            <div>
+              <h3 className="text-xl font-extrabold text-foreground">Your 30-day calendar — at a glance</h3>
+              <p className="mt-1 text-base text-muted-foreground">One square = one day. Click any day to expand it. Check 'em off as you go.</p>
+            </div>
+          </div>
+          <CalendarGrid days={days} />
+        </div>
+      )}
+
+      {platform && basics[platform] && (
+        <div className="rounded-2xl border-2 border-dashed border-[oklch(0.65_0.22_35/0.4)] bg-[oklch(0.65_0.22_35/0.05)] p-6">
+          <div className="mb-4 flex items-start gap-3">
+            <span className="text-3xl">📱</span>
+            <div>
+              <h3 className="text-xl font-extrabold text-foreground">{basics[platform].title}</h3>
+              <p className="mt-1 text-base text-muted-foreground">No assumptions. Here's exactly what to tap.</p>
+            </div>
+          </div>
+          <ol className="space-y-3">
+            {basics[platform].steps.map((s, i) => (
+              <li key={i} className="flex items-start gap-3 rounded-xl border border-border bg-white p-4">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-white" style={{ background: "var(--gradient-brand)" }}>{i + 1}</span>
+                <span className="text-base leading-relaxed text-slate-800">{splitBold(s)}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CalendarGrid({ days }: { days: { day: number; text: string }[] }) {
+  const [open, setOpen] = useState<number | null>(null);
+  const map = new Map(days.map((d) => [d.day, d.text]));
+  const cells = Array.from({ length: 30 }, (_, i) => i + 1);
+  return (
+    <div>
+      <div className="grid grid-cols-5 gap-2 sm:grid-cols-7 sm:gap-3">
+        {cells.map((n) => {
+          const has = map.has(n);
+          const isOpen = open === n;
+          return (
+            <button
+              key={n}
+              type="button"
+              onClick={() => setOpen(isOpen ? null : n)}
+              disabled={!has}
+              className={`relative aspect-square rounded-xl border-2 text-sm font-bold transition-all ${
+                isOpen
+                  ? "border-transparent text-white shadow-md"
+                  : has
+                  ? "border-border bg-white text-slate-900 hover:-translate-y-0.5 hover:border-[oklch(0.62_0.27_348)] hover:shadow-sm"
+                  : "cursor-not-allowed border-border/40 bg-background/40 text-muted-foreground/50"
+              }`}
+              style={isOpen ? { background: "var(--gradient-brand)" } : undefined}
+            >
+              <span className="absolute left-2 top-1.5 text-[10px] font-bold uppercase opacity-70">Day</span>
+              <span className="text-lg">{n}</span>
+            </button>
+          );
+        })}
+      </div>
+      {open !== null && map.has(open) && (
+        <div className="mt-4 rounded-xl border-2 border-[oklch(0.62_0.27_348/0.4)] bg-white p-5 shadow-sm xcel-fade-up">
+          <p className="text-xs font-extrabold uppercase tracking-widest text-[oklch(0.55_0.22_295)]">Day {open}</p>
+          <p className="mt-2 text-base leading-relaxed text-slate-900">{splitBold(map.get(open)!)}</p>
+        </div>
+      )}
+    </div>
   );
 }
