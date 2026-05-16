@@ -645,18 +645,24 @@ function BuildItWithAI({ output, plan }: { output: string; plan: PlanRow }) {
     `START BY: writing the full first section/module of this product for me, in a friendly, conversational voice my audience will love. Then ask me one question before continuing to section 2.`,
   ].join("\n");
 
-  const encoded = encodeURIComponent(prompt);
-  const links = [
-    { label: "Open in ChatGPT", emoji: "💬", href: `https://chatgpt.com/?prompt=${encoded}` },
-    { label: "Open in Claude", emoji: "🧠", href: `https://claude.ai/new?q=${encoded}` },
-    { label: "Open in Gemini", emoji: "✨", href: `https://gemini.google.com/app?q=${encoded}` },
+  const tools = [
+    { name: "ChatGPT", emoji: "💬", url: "chatgpt.com", note: "Best beginner choice" },
+    { name: "Claude", emoji: "🧠", url: "claude.ai", note: "Great for long drafts" },
+    { name: "Gemini", emoji: "✨", url: "gemini.google.com", note: "Good Google option" },
   ];
 
   const [copied, setCopied] = useState(false);
+  const [copiedTool, setCopiedTool] = useState<string | null>(null);
   const copyPrompt = async () => {
     await navigator.clipboard.writeText(prompt);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copyForTool = async (toolName: string) => {
+    await navigator.clipboard.writeText(prompt);
+    setCopiedTool(toolName);
+    setTimeout(() => setCopiedTool(null), 3000);
   };
 
   return (
@@ -666,24 +672,28 @@ function BuildItWithAI({ output, plan }: { output: string; plan: PlanRow }) {
         <div>
           <h3 className="text-xl font-extrabold text-foreground">Now let's actually BUILD it</h3>
           <p className="mt-1 text-base text-muted-foreground">
-            Tap a button below. We'll hand your blueprint to an AI that'll write the actual product with you — one section at a time. Free to use.
+            Pick your AI helper below. In preview, outside AI sites block automatic opening, so this safely copies your prompt first.
           </p>
         </div>
       </div>
-      <div className="flex flex-wrap gap-3">
-        {links.map((l) => (
+      <div className="grid gap-3 sm:grid-cols-3">
+        {tools.map((tool) => (
           <button
-            key={l.label}
+            key={tool.name}
             type="button"
-            onClick={async () => {
-              try { await navigator.clipboard.writeText(prompt); } catch {}
-              window.open(l.href, "_blank", "noopener,noreferrer");
-            }}
-            className="inline-flex items-center gap-2 rounded-xl border-2 border-border bg-white px-5 py-3 text-base font-bold text-slate-900 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[oklch(0.62_0.27_348)] hover:shadow-md"
+            onClick={() => copyForTool(tool.name)}
+            className="rounded-xl border-2 border-border bg-white p-4 text-left text-slate-900 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[oklch(0.62_0.27_348)] hover:shadow-md"
           >
-            <span className="text-xl">{l.emoji}</span> {l.label}
+            <div className="flex items-center gap-2 text-lg font-extrabold"><span>{tool.emoji}</span>{tool.name}</div>
+            <p className="mt-1 text-sm font-semibold text-slate-600">{tool.note}</p>
+            <p className="mt-3 text-base font-bold text-[oklch(0.62_0.27_348)]">
+              {copiedTool === tool.name ? "✓ Prompt copied" : "Copy prompt"}
+            </p>
+            <p className="mt-1 text-sm text-slate-500">Then open {tool.url} in a normal browser tab and paste.</p>
           </button>
         ))}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-3">
         <button
           onClick={copyPrompt}
           className="inline-flex items-center gap-2 rounded-xl border-2 border-border bg-background px-5 py-3 text-base font-bold transition hover:border-foreground/40"
@@ -692,7 +702,7 @@ function BuildItWithAI({ output, plan }: { output: string; plan: PlanRow }) {
         </button>
       </div>
       <p className="mt-4 text-sm text-muted-foreground">
-        💡 New to AI chat tools? ChatGPT is the most beginner-friendly — start there. You'll just see your prompt waiting in the chat box. Hit send and start building.
+        💡 This avoids the preview-window error. After publishing, you can still use the same copy-and-paste flow from the live site.
       </p>
     </div>
   );
