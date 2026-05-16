@@ -596,18 +596,18 @@ function renderMarkdown(text: string): ReactNode {
     // Header-only line (whole line bold)
     const headerMatch = line.match(/^\*\*([^*]+)\*\*\s*[—-]?\s*(.*)$/);
     if (headerMatch && headerMatch[2] === "") {
-      out.push(<h3 key={i} className="mt-5 mb-2 text-base font-bold text-foreground">{headerMatch[1]}</h3>);
+      out.push(<h3 key={i} className="mt-6 mb-3 text-xl font-bold text-foreground">{headerMatch[1]}</h3>);
       return;
     }
     if (headerMatch && headerMatch[2]) {
       out.push(
-        <p key={i} className="mb-3">
+        <p key={i} className="mb-4">
           <span className="font-bold">{headerMatch[1]}</span> — {splitBold(headerMatch[2])}
         </p>
       );
       return;
     }
-    out.push(<p key={i} className="mb-3">{splitBold(line)}</p>);
+    out.push(<p key={i} className="mb-4">{splitBold(line)}</p>);
   });
   flushList();
   return out;
