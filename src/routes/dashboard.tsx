@@ -647,7 +647,7 @@ function BuildItWithAI({ output, plan }: { output: string; plan: PlanRow }) {
 
   const encoded = encodeURIComponent(prompt);
   const links = [
-    { label: "Open in ChatGPT", emoji: "💬", href: `https://chat.openai.com/?q=${encoded}` },
+    { label: "Open in ChatGPT", emoji: "💬", href: `https://chatgpt.com/?prompt=${encoded}` },
     { label: "Open in Claude", emoji: "🧠", href: `https://claude.ai/new?q=${encoded}` },
     { label: "Open in Gemini", emoji: "✨", href: `https://gemini.google.com/app?q=${encoded}` },
   ];
@@ -672,15 +672,17 @@ function BuildItWithAI({ output, plan }: { output: string; plan: PlanRow }) {
       </div>
       <div className="flex flex-wrap gap-3">
         {links.map((l) => (
-          <a
+          <button
             key={l.label}
-            href={l.href}
-            target="_blank"
-            rel="noopener noreferrer"
+            type="button"
+            onClick={async () => {
+              try { await navigator.clipboard.writeText(prompt); } catch {}
+              window.open(l.href, "_blank", "noopener,noreferrer");
+            }}
             className="inline-flex items-center gap-2 rounded-xl border-2 border-border bg-white px-5 py-3 text-base font-bold text-slate-900 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[oklch(0.62_0.27_348)] hover:shadow-md"
           >
             <span className="text-xl">{l.emoji}</span> {l.label}
-          </a>
+          </button>
         ))}
         <button
           onClick={copyPrompt}
