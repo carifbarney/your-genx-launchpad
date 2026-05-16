@@ -23,6 +23,12 @@ const TOOLS: { key: ToolKey; num: number; emoji: string; title: string; subtitle
   { key: "launch_plan",    num: 4, emoji: "🚀", title: "Launch & Sell",   subtitle: "Your 30-day game plan" },
 ];
 
+const NEXT_TOOL: Partial<Record<ToolKey, ToolKey>> = {
+  starting_point: "product",
+  product: "storefront",
+  storefront: "launch_plan",
+};
+
 type PlanRow = {
   niche: string | null; roadblock: string | null; day: string | null;
   starting_point_output: string | null; product_output: string | null;
@@ -196,6 +202,10 @@ function Dashboard() {
           onComplete={refreshPlan}
           onUsage={(r) => setRemaining(r)}
           disabled={remaining === 0}
+          onAdvance={(next) => {
+            setActiveTool(next);
+            if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
         />
       </section>
     </main>
@@ -204,13 +214,14 @@ function Dashboard() {
 
 // ===== Tool panel =====
 function ToolPanel({
-  tool, plan, onComplete, onUsage, disabled,
+  tool, plan, onComplete, onUsage, disabled, onAdvance,
 }: {
   tool: ToolKey;
   plan: PlanRow;
   onComplete: () => void;
   onUsage: (remaining: number) => void;
   disabled: boolean;
+  onAdvance: (next: ToolKey) => void;
 }) {
   const generate = useServerFn(generateXcelerateResponse);
   const [output, setOutput] = useState<string>(() => {
@@ -458,7 +469,7 @@ function ToolPanel({
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[oklch(0.75_0.22_348)]" /> Streaming live
                 </div>
               )}
-              <div className="prose-xcel text-[17px] leading-[1.75] text-foreground">{renderMarkdown(output)}</div>
+              <OutputCards output={output} streaming={streaming} />
               {!streaming && tool === "product" && (
                 <BuildItWithAI output={output} plan={plan} />
               )}
@@ -469,10 +480,21 @@ function ToolPanel({
                 <LaunchCalendar output={output} />
               )}
               {!streaming && (
-                <div className="mt-6 flex flex-wrap gap-2">
+                <div className="mt-6 flex flex-wrap items-center gap-3">
                   <button onClick={handleCopy} className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-base font-semibold transition hover:border-foreground/40 hover:bg-accent">
                     {copied ? "✓ Copied!" : "📋 Copy"}
                   </button>
+                  {NEXT_TOOL[tool] && (
+                    <button
+                      type="button"
+                      onClick={() => onAdvance(NEXT_TOOL[tool]!)}
+                      className="group ml-auto inline-flex items-center gap-2 rounded-full px-6 py-3 text-base font-extrabold text-white shadow-[0_10px_30px_-10px_oklch(0.62_0.27_348/0.55)] transition-all hover:-translate-y-0.5 hover:shadow-[0_15px_40px_-10px_oklch(0.62_0.27_348/0.65)]"
+                      style={{ background: "var(--gradient-brand)" }}
+                    >
+                      Next: {TOOLS.find((t) => t.key === NEXT_TOOL[tool])!.title}
+                      <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                    </button>
+                  )}
                 </div>
               )}
             </>
@@ -582,6 +604,107 @@ function Field({
 }
 
 // ===== Lightweight markdown rendering =====
+function splitIntoSections(text: string): { title: string | null; body: string }[] {
+  const lines = text.split("\n");
+  const sections: { title: string | null; body: string[] }[] = [];
+  let current: { title: string | null; body: string[] } = { title: null, body: [] };
+  for (const line of lines) {
+    const hdr = line.match(/^\s*\*\*([^*]+)\*\*\s*$/);
+    if (hdr) {
+      if (current.title || current.body.join("").trim()) sections.push(current);
+      current = { title: hdr[1].trim(), body: [] };
+    } else {
+      current.body.push(line);
+    }
+  }
+  if (current.title || current.body.join("").trim()) sections.push(current);
+  const cleaned = sections
+    .map((s) => ({ title: s.title, body: s.body.join("\n").trim() }))
+    .filter((s) => s.title || s.body);
+  if (cleaned.length > 1) return cleaned;
+  // Fallback: split single big blob into ~3-paragraph chunks
+  const paras = text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+  if (paras.length <= 3) return [{ title: null, body: text }];
+  const out: { title: string | null; body: string }[] = [];
+  for (let i = 0; i < paras.length; i += 3) {
+    out.push({ title: null, body: paras.slice(i, i + 3).join("\n\n") });
+  }
+  return out;
+}
+
+function OutputCards({ output, streaming }: { output: string; streaming: boolean }) {
+  const sections = useMemo(() => splitIntoSections(output), [output]);
+  const [idx, setIdx] = useState(0);
+  // While streaming, follow the last section so users see new content arrive.
+  useEffect(() => {
+    if (streaming) setIdx(Math.max(0, sections.length - 1));
+  }, [streaming, sections.length]);
+  // Keep idx in bounds if sections shrink.
+  useEffect(() => {
+    if (idx > sections.length - 1) setIdx(Math.max(0, sections.length - 1));
+  }, [sections.length, idx]);
+
+  if (sections.length === 0) return null;
+  const total = sections.length;
+  const safeIdx = Math.min(idx, total - 1);
+  const current = sections[safeIdx];
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between text-sm font-semibold text-muted-foreground">
+        <span>Card {safeIdx + 1} of {total}</span>
+        <span className="hidden sm:inline">Tap the arrows or dots to flip through</span>
+      </div>
+      <div
+        key={safeIdx}
+        className="rounded-2xl border-2 border-[oklch(0.62_0.27_348/0.25)] bg-white p-6 text-slate-900 shadow-sm xcel-fade-up sm:p-8"
+      >
+        {current.title && (
+          <h3 className="mb-4 text-2xl font-extrabold leading-tight text-slate-900">
+            {current.title}
+          </h3>
+        )}
+        <div className="prose-xcel text-[17px] leading-[1.75] text-slate-800">
+          {renderMarkdown(current.body)}
+        </div>
+      </div>
+      {total > 1 && (
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => setIdx((i) => Math.max(0, i - 1))}
+            disabled={safeIdx === 0}
+            className="inline-flex items-center gap-2 rounded-full border-2 border-border bg-card px-5 py-2.5 text-base font-bold transition hover:-translate-y-0.5 hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+          >
+            ← Back
+          </button>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {sections.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Go to card ${i + 1}`}
+                onClick={() => setIdx(i)}
+                className={`h-2.5 rounded-full transition-all ${
+                  i === safeIdx ? "w-8 bg-[oklch(0.62_0.27_348)]" : "w-2.5 bg-border hover:bg-muted-foreground/50"
+                }`}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setIdx((i) => Math.min(total - 1, i + 1))}
+            disabled={safeIdx === total - 1}
+            className="inline-flex items-center gap-2 rounded-full border-2 border-border bg-card px-5 py-2.5 text-base font-bold transition hover:-translate-y-0.5 hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+          >
+            Next →
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function renderMarkdown(text: string): ReactNode {
   const lines = text.split("\n");
   const out: ReactNode[] = [];
