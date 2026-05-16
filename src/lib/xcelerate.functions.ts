@@ -19,7 +19,15 @@ FORMAT RULES:
 - Lead with the most important answer first
 - Reference what the user actually said — never generic
 - End with one clear next action labeled "**Your Next Move**" — one bold sentence, no options
-- Target 400-550 words total. Scannable. No filler.`;
+- Target 450-650 words total. Scannable. No filler.
+
+SPECIFICITY RULES — NON-NEGOTIABLE:
+- NAME things. Give frameworks, products, modules, and methods proper branded names in Title Case with quotes (e.g. "The Profitable Pivot Roadmap", "The Gen X Genius Audit", "The MVP Matrix", "The Done Is Better Checklist"). Never describe a thing generically when you can name it.
+- Use REAL EXAMPLES, not categories. Instead of "a spreadsheet product" say "The Meal Prep Master Spreadsheet". Instead of "a guide for VAs" say "The Virtual Assistant Onboarding Guide".
+- Use SPECIFIC NUMBERS. Real prices ($27, $47, $97), real time estimates (90 mins, 3 hours), real counts (15 questions, 5 blueprints, 10-minute daily tasks).
+- Use SPECIFIC TOOLS by name. Canva "Lead Magnet" template. Google Doc. Beacons.ai. Stan Store. Stripe. PayPal. Instagram Reels. Facebook Group.
+- One-sentence PITCH lines must sound like marketing copy, not a description (e.g. "Stop guessing what to sell and start building it.").
+- When you write a price, JUSTIFY it in one sentence using audience psychology (e.g. "low enough to bypass a spouse's approval, high enough they actually open the file").`;
 
 const PROMPTS = {
   starting_point: `${BASE_VOICE}
