@@ -255,7 +255,7 @@ function ToolPanel({
                 label="What are you the go-to person for?"
                 hint="Don't overthink it. What do friends ask you about?"
                 value={niche} onChange={setNiche} disabled={streaming}
-                placeholder='e.g. "meal planning for busy moms" — or just type "not sure yet" and we\'ll figure it out together'
+                placeholder={`e.g. "meal planning for busy moms" — or just type "not sure yet" and we'll figure it out together`}
                 chips={[
                   "Honestly? Not sure yet",
                   "Meal planning & easy recipes",
