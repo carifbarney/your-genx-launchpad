@@ -6,6 +6,7 @@ import {
   generateXcelerateResponse,
   getRemainingRequests,
   getUserPlan,
+  clearUserPlan,
 } from "@/lib/xcelerate.functions";
 
 export const Route = createFileRoute("/dashboard")({
@@ -15,11 +16,11 @@ export const Route = createFileRoute("/dashboard")({
 
 type ToolKey = "starting_point" | "product" | "storefront" | "launch_plan";
 
-const TOOLS: { key: ToolKey; num: number; title: string; subtitle: string; locked?: boolean }[] = [
-  { key: "starting_point", num: 1, title: "Starting Point", subtitle: "Find your clear first step" },
-  { key: "product",        num: 2, title: "Product Builder", subtitle: "Create what you'll sell" },
-  { key: "storefront",     num: 3, title: "Beacons Storefront", subtitle: "Step-by-step setup" },
-  { key: "launch_plan",    num: 4, title: "30-Day Launch Plan", subtitle: "Daily actions to sell" },
+const TOOLS: { key: ToolKey; num: number; emoji: string; title: string; subtitle: string }[] = [
+  { key: "starting_point", num: 1, emoji: "🧭", title: "Find Your Lane", subtitle: "Get unstuck in 60 seconds" },
+  { key: "product",        num: 2, emoji: "💡", title: "Build Your Thing", subtitle: "A real product, not a maybe" },
+  { key: "storefront",     num: 3, emoji: "🛍️", title: "Open Your Shop", subtitle: "Beacons in one sitting" },
+  { key: "launch_plan",    num: 4, emoji: "🚀", title: "Launch & Sell",   subtitle: "Your 30-day game plan" },
 ];
 
 type PlanRow = {
@@ -38,6 +39,7 @@ function Dashboard() {
 
   const fetchPlan = useServerFn(getUserPlan);
   const fetchRemaining = useServerFn(getRemainingRequests);
+  const clearPlan = useServerFn(clearUserPlan);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -58,6 +60,13 @@ function Dashboard() {
 
   const refreshPlan = async () => {
     try { const r = await fetchPlan({}); setPlan(r.plan as PlanRow); } catch {}
+  };
+
+  const handleStartFresh = async () => {
+    if (!confirm("Clear all your saved answers and start over? (Your account stays — just the answers reset.)")) return;
+    try { await clearPlan({}); } catch {}
+    setPlan(null);
+    setActiveTool("starting_point");
   };
 
   if (checking) {
@@ -84,11 +93,19 @@ function Dashboard() {
       </header>
 
       <section className="mx-auto max-w-5xl px-6 py-8">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold sm:text-4xl">Your Launch System</h1>
-          <p className="mt-2 text-muted-foreground">Four tools. One clear path from idea to income.</p>
-          {remaining !== null && (
-            <p className="mt-2 text-xs text-muted-foreground">{remaining} of 20 AI requests left today</p>
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold sm:text-4xl">Hey — let's build this thing 👋</h1>
+            <p className="mt-2 text-muted-foreground">Four steps. No fluff. You'll have something real today.</p>
+            {remaining !== null && (
+              <p className="mt-2 text-xs text-muted-foreground">{remaining} of 20 AI requests left today</p>
+            )}
+          </div>
+          {(plan?.niche || plan?.starting_point_output) && (
+            <button onClick={handleStartFresh}
+              className="rounded-md border border-border bg-card px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:border-foreground/40 hover:text-foreground">
+              ↺ Start fresh
+            </button>
           )}
         </div>
 
@@ -108,12 +125,11 @@ function Dashboard() {
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className={`text-xs font-bold ${active ? "text-cta" : "text-muted-foreground"}`}>
-                    STEP {t.num}
-                  </span>
+                  <span className="text-2xl leading-none">{t.emoji}</span>
                   {done && <span className="text-xs font-semibold text-emerald-600">✓ Done</span>}
                 </div>
-                <div className="mt-2 text-sm font-bold leading-tight">{t.title}</div>
+                <div className="mt-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Step {t.num}</div>
+                <div className="mt-1 text-sm font-bold leading-tight">{t.title}</div>
                 <div className="mt-1 text-xs text-muted-foreground">{t.subtitle}</div>
               </button>
             );
