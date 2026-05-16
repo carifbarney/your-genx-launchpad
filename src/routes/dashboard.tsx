@@ -251,38 +251,113 @@ function ToolPanel({
         <form onSubmit={handleSubmit} className="mt-6 space-y-5">
           {tool === "starting_point" && (
             <>
-              <Field label="Your Niche or Topic Idea" value={niche} onChange={setNiche} disabled={streaming}
-                placeholder='e.g. helping women over 40 with meal planning, teaching beginners how to use Canva, or write "not sure yet"' />
-              <Field label="Your Biggest Roadblock Right Now" value={roadblock} onChange={setRoadblock} disabled={streaming}
-                placeholder="e.g. I keep changing my niche, I don't know what platform to use, I'm scared no one will listen to someone my age" />
-              <Field label="What Does Your Day Look Like?" value={day} onChange={setDay} disabled={streaming}
-                placeholder="e.g. I have 1-2 hours a day, I work part time, I homeschool, the more honest the more useful" />
+              <Field
+                label="What are you the go-to person for?"
+                hint="Don't overthink it. What do friends ask you about?"
+                value={niche} onChange={setNiche} disabled={streaming}
+                placeholder='e.g. "meal planning for busy moms" — or just type "not sure yet" and we\'ll figure it out together'
+                chips={[
+                  "Honestly? Not sure yet",
+                  "Meal planning & easy recipes",
+                  "Helping women restart their careers",
+                  "Decluttering & home organization",
+                  "Faith + family life",
+                  "Menopause wellness",
+                ]}
+              />
+              <Field
+                label="What's the thing that keeps tripping you up?"
+                hint="Be real — this is where most people quit."
+                value={roadblock} onChange={setRoadblock} disabled={streaming}
+                placeholder="e.g. I keep changing my mind every week"
+                chips={[
+                  "I keep changing my niche",
+                  "Tech overwhelms me",
+                  "I feel like I'm too late",
+                  "I don't know what to sell",
+                  "Scared nobody will care",
+                ]}
+              />
+              <Field
+                label="What does a normal day look like for you?"
+                hint="So we don't build a plan you can't actually do."
+                value={day} onChange={setDay} disabled={streaming}
+                placeholder='e.g. "1 hour after the kids are in bed"'
+                chips={[
+                  "30 mins early morning",
+                  "1-2 hours after kids/work",
+                  "Weekends mostly",
+                  "I homeschool — it's chaos",
+                  "I work full-time",
+                ]}
+              />
             </>
           )}
 
           {tool === "product" && (
             <>
               <ContextSummary plan={plan} show={["niche", "starting_point_output"]} />
-              <Field label="Anything specific you want in your product? (optional)" value={productNotes} onChange={setProductNotes} disabled={streaming}
-                placeholder='e.g. "I want it to be a free PDF I can give away to grow my email list" or "I want a paid product under $30" — leave blank and we pick the best fit' />
+              <Field
+                label="Any wishes for your product? (totally optional)"
+                hint="Skip this and we'll pick what fits you best."
+                value={productNotes} onChange={setProductNotes} disabled={streaming}
+                placeholder="Type a wish, or tap one below 👇"
+                chips={[
+                  "Keep it under $30",
+                  "Make it a free PDF to grow my email list",
+                  "Something I can finish in a weekend",
+                  "Affiliate-friendly so I don't have to make it",
+                  "Surprise me",
+                ]}
+              />
             </>
           )}
 
           {tool === "storefront" && (
             <>
               <ContextSummary plan={plan} show={["niche", "product_output"]} />
-              <Field label="Anything to know about your storefront? (optional)" value={storefrontNotes} onChange={setStorefrontNotes} disabled={streaming}
-                placeholder='e.g. preferred username, brand colors, whether you already have a Beacons account' />
+              <Field
+                label="Anything we should know? (optional)"
+                hint="Username ideas, brand vibe, or just hit Generate."
+                value={storefrontNotes} onChange={setStorefrontNotes} disabled={streaming}
+                placeholder='e.g. "I want my username to be @ClaireAtHome"'
+                chips={[
+                  "I already have a Beacons account",
+                  "Warm, cozy brand colors",
+                  "Bold and modern vibe",
+                  "I want my name in the handle",
+                ]}
+              />
             </>
           )}
 
           {tool === "launch_plan" && (
             <>
               <ContextSummary plan={plan} show={["niche", "product_output"]} />
-              <Field label="How many hours can you realistically work on this each day?" value={hoursPerDay} onChange={setHoursPerDay} disabled={streaming}
-                placeholder="e.g. 30 minutes weekday mornings, 2 hours on weekends" />
-              <Field label="Any platform preference? (optional)" value={platformPreference} onChange={setPlatformPreference} disabled={streaming}
-                placeholder="e.g. I'm already on Instagram, I hate making videos, I'm comfortable on Facebook — leave blank and we pick" />
+              <Field
+                label="How much time can you actually give this?"
+                hint="Real talk — we'll build the plan around YOUR life."
+                value={hoursPerDay} onChange={setHoursPerDay} disabled={streaming}
+                placeholder="Tap one or type your own"
+                chips={[
+                  "15 mins a day, that's it",
+                  "30 mins most mornings",
+                  "1 hour after dinner",
+                  "2 hours on weekends only",
+                ]}
+              />
+              <Field
+                label="Platform you're comfortable on? (optional)"
+                hint="Or let us pick the easiest one for you."
+                value={platformPreference} onChange={setPlatformPreference} disabled={streaming}
+                placeholder="Tap one or skip"
+                chips={[
+                  "I'm already on Facebook",
+                  "Instagram — but I hate Reels",
+                  "Pinterest sounds doable",
+                  "Help, I have no idea",
+                ]}
+              />
             </>
           )}
 
@@ -292,7 +367,7 @@ function ToolPanel({
 
           <button type="submit" disabled={streaming || disabled}
             className="w-full rounded-md bg-cta px-6 py-3 text-base font-bold text-white shadow transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60">
-            {streaming ? "Generating…" : output ? "Regenerate" : "Generate"}
+            {streaming ? "Cooking it up…" : output ? "↺ Try again with new info" : "✨ Show me what to do"}
           </button>
         </form>
       )}
@@ -353,15 +428,47 @@ function ContextSummary({ plan, show }: { plan: PlanRow; show: string[] }) {
 }
 
 function Field({
-  label, value, onChange, placeholder, disabled,
-}: { label: string; value: string; onChange: (v: string) => void; placeholder: string; disabled?: boolean }) {
+  label, value, onChange, placeholder, disabled, hint, chips,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  disabled?: boolean;
+  hint?: string;
+  chips?: string[];
+}) {
   return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-semibold text-foreground">{label}</span>
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-        disabled={disabled} rows={3} maxLength={1000}
-        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-60" />
-    </label>
+    <div>
+      <label className="block">
+        <span className="block text-sm font-bold text-foreground">{label}</span>
+        {hint && <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>}
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          disabled={disabled}
+          rows={2}
+          maxLength={1000}
+          className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta/50 disabled:opacity-60"
+        />
+      </label>
+      {chips && chips.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {chips.map((chip) => (
+            <button
+              key={chip}
+              type="button"
+              disabled={disabled}
+              onClick={() => onChange(chip)}
+              className="rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground transition hover:border-cta/60 hover:bg-cta/5 hover:text-foreground disabled:opacity-50"
+            >
+              {chip}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
