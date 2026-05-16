@@ -430,11 +430,17 @@ function ToolPanel({
             <p className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">{errorMsg}</p>
           )}
 
+          {disabled && !streaming && (
+            <p className="rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+              You've used all 20 of today's AI requests. Your quota resets at midnight — come back tomorrow and pick right up where you left off. 💛
+            </p>
+          )}
+
           <button type="submit" disabled={streaming || disabled}
             className="group relative w-full overflow-hidden rounded-xl px-6 py-4 text-lg font-bold text-white shadow-[0_10px_30px_-10px_oklch(0.62_0.27_348/0.55)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_15px_40px_-10px_oklch(0.62_0.27_348/0.65)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
             style={{ background: "var(--gradient-brand)" }}>
             <span className="relative z-10">
-              {streaming ? "✨ Cooking it up…" : output ? "↺ Try again with new info" : "✨ Show me what to do"}
+              {streaming ? "✨ Cooking it up…" : disabled ? "🚫 Out of requests for today" : output ? "↺ Try again with new info" : "✨ Show me what to do"}
             </span>
             {!streaming && (
               <span aria-hidden className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
