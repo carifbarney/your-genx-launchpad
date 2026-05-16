@@ -41,6 +41,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_plans: {
+        Row: {
+          created_at: string
+          day: string | null
+          id: string
+          launch_plan_output: string | null
+          niche: string | null
+          product_output: string | null
+          roadblock: string | null
+          starting_point_output: string | null
+          storefront_output: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day?: string | null
+          id?: string
+          launch_plan_output?: string | null
+          niche?: string | null
+          product_output?: string | null
+          roadblock?: string | null
+          starting_point_output?: string | null
+          storefront_output?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day?: string | null
+          id?: string
+          launch_plan_output?: string | null
+          niche?: string | null
+          product_output?: string | null
+          roadblock?: string | null
+          starting_point_output?: string | null
+          storefront_output?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
