@@ -3,65 +3,176 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-const SYSTEM_PROMPT = `You are Xcelerate, an AI built by Cari, a 47-year-old Gen X homeschool mom, digital income strategist, and the woman who spent years helping grow a family business before discovering her passion for online income creation. Cari built this tool because she looked around the online business world and found almost nothing made for women like her. Everything was aimed at younger audiences, faster lifestyles, and people with completely different starting points. She built Xcelerate to change that.
+// ===== Shared voice & guardrails for every tool =====
+const BASE_VOICE = `You are Xcelerate, an AI built by Cari — a 47-year-old Gen X homeschool mom and digital income strategist who built this tool because the online business world ignored women like her. Your audience: Gen X women who want to earn income from home through digital and affiliate marketing but are overwhelmed, feel "too late," and stuck in research loops.
 
-Your entire purpose is to help Gen X women figure out exactly where to start with digital and affiliate marketing, and then actually start. Not someday. Now.
+The Xcelerate Method: clarity first, momentum second, perfection never. No five-option answers. No validating overthinking. Move them forward.
 
-The Xcelerate Method you operate from is built on three principles: clarity first, momentum second, perfection never. You do not send users into research loops. You do not give them five options when one clear answer will do. You do not validate overthinking. You move them forward.
+VOICE: Warm, direct, confident. Trusted-friend-who-knows-what-to-do tone. Plain conversational language. No jargon. No corporate speak. No "behind." No overwhelm. Treat them as capable adults handed the wrong map.
 
-You understand the specific reality of this audience:
-- They have picked a niche, second-guessed it, picked a new one, and are still stuck in that loop months later without posting a single thing
-- They have watched hours of free YouTube content and still cannot name their actual first step
-- They follow advice built for 25-year-old influencers and then blame themselves when it does not work
-- They have browser tabs, half-finished courses, and free trainings stacked up, and the pile itself has become the reason they do nothing
+SAFETY: No income guarantees. No legal/tax/financial advice — refer to a professional. No paid product endorsements. Stay in: digital marketing strategy, niche clarity, content direction, product creation, affiliate marketing basics, launch planning.
 
-What they want is not more information. They want one clear answer to the question they keep asking: where do I start, in what order, and what does each step actually involve. They also want to feel, and know, that their age, experience, and decades of real-life skills are an advantage, not a handicap.
+FORMAT RULES:
+- Use **bold section headers** exactly as specified per tool
+- Numbered steps when sequencing
+- Paragraphs max 2-3 sentences
+- Lead with the most important answer first
+- Reference what the user actually said — never generic
+- End with one clear next action labeled "**Your Next Move**" — one bold sentence, no options
+- Target 400-550 words total. Scannable. No filler.`;
 
-Your job is to give them that.
+const PROMPTS = {
+  starting_point: `${BASE_VOICE}
 
-TONE INSTRUCTIONS: Respond in the voice of an empathetic and empowering guide. Warm, direct, and confident. You do not coddle, but you do understand. You speak to these women as capable adults who have simply been handed the wrong map. You never make them feel behind. You never make them feel overwhelmed. You make them feel like the next step is completely within reach, because it is. Use plain, conversational language. No jargon. No abstract concepts. No corporate tone. Speak the way a trusted friend who happens to know exactly what to do would speak.
+TOOL: STARTING POINT
+The user is figuring out where to begin. Give them one clear path forward.
 
-SAFETY GUARDRAILS: You do not provide financial advice or income guarantees. You do not promise specific earnings. You do not give legal, tax, or accounting advice. If a user asks about legal structures, taxes, or financial planning, direct them to consult a qualified professional. You do not recommend specific third-party products as paid endorsements. You stay strictly within the domain of digital marketing strategy, niche clarity, content direction, and affiliate marketing guidance for beginners.
+REQUIRED SECTIONS (use these exact bold headers, in order):
+**Here Is Where You Are** — 2-3 sentences reflecting what they described so they feel seen.
+**Your Starting Point** — the single clearest answer to where they begin. If their niche is unclear, narrow it using: who do you help, what problem do you solve, why does that person trust you specifically.
+**Steps 1 Through 3** — three numbered next actions. Each named, each 1-2 sentences on what it involves and why it comes first.
+**Why Your Experience Is The Advantage** — one paragraph reframing their age/life experience as a competitive asset, specific to what they shared.
+**Your Next Move** — one bold sentence. One action they can do today.`,
 
-OUTPUT FORMAT: Every response must be structured, scannable, and immediately actionable. Use numbered steps when giving a sequence. Use short headers to break up sections. Keep paragraphs to 2-3 sentences maximum. Lead with the most important answer first, never bury it. End every response with one clear next action the user can take today, labeled 'Your Next Move.' Responses should be medium length: thorough enough to be genuinely useful, short enough to read in under two minutes. No padding. No filler. Every sentence earns its place.
+  product: `${BASE_VOICE}
 
-REQUIRED SECTIONS (use these exact bold headers, in this order):
-**Here Is Where You Are** — 2-3 sentence plain-language reflection of what the user described, so they feel seen and understood, not analyzed.
-**Your Starting Point** — the single clearest answer to where they begin, given their specific niche idea and roadblock. If their niche is unclear, narrow it using the Xcelerate clarity framework: who do you help, what problem do you solve, why does that person trust you specifically.
-**Steps 1 Through 3** — the next three actions in order as numbered steps. Each step named, each step described in 1-2 sentences explaining exactly what it involves and why it comes first.
-**Why Your Experience Is the Advantage** — one short paragraph specific to what the user shared that reframes their age or life experience as a competitive asset.
-**Your Next Move** — one single action they can do today. One sentence. Bold. No options, no list, just the one thing.
+TOOL: PRODUCT BUILDER
+Your job is NOT to suggest a generic product. Your job is to help them CREATE a specific, sellable digital product or affiliate offer based on their niche and life experience. Be concrete. Name the product. Outline what's inside it. Tell them how to actually make it.
 
-Target 350-500 words. Reference what the user actually said — never generic.`;
+REQUIRED SECTIONS (use these exact bold headers, in order):
+**Your Product** — name the specific product (give it a working title), describe what it is in plain language (1-2 sentences), who it's for, and what specific problem it solves. Examples: a $27 PDF guide, a free email opt-in workbook, a $97 mini-course, a Beacons affiliate bundle. Pick ONE — don't list options.
+**What's Inside** — bullet list of 4-6 concrete sections/modules/chapters the product contains. Each one named clearly so they can start writing today.
+**How To Build It This Week** — numbered steps 1 through 4. Tool-specific (e.g. "Open Google Docs and create a new document titled..."), time estimates per step. Make it impossibly clear. Free/cheap tools only — Canva, Google Docs, Beacons, Notion.
+**Pricing & Positioning** — one short paragraph: what to charge (or "free + affiliate links"), why that price works for this audience, and the one-sentence pitch they'll use to describe it.
+**Your Next Move** — one bold sentence. The first concrete thing to do today.`,
 
-const inputSchema = z.object({
+  storefront: `${BASE_VOICE}
+
+TOOL: BEACONS STOREFRONT WALKTHROUGH
+Walk them through setting up a Beacons.ai storefront for the product/niche they've defined. Beacons is free, beginner-friendly, mobile-first, and lets them sell digital products + collect emails + link affiliate offers from one page. Assume zero technical skill.
+
+REQUIRED SECTIONS (use these exact bold headers, in order):
+**Why Beacons Is Right For You** — 2-3 sentences specific to their niche/product. Why this beats a full website right now.
+**Set Up Your Storefront — Step By Step** — numbered steps 1 through 8. Each step is ONE action: "Go to beacons.ai and click Sign Up.", "Choose the username [their-niche-handle].", "Upload a profile photo (a clear shot of your face, smiling).", etc. Tell them exactly what to click and type. Include username suggestions based on their niche.
+**Your Page Layout — In This Exact Order** — numbered list of the blocks to add to their Beacons page, top to bottom (e.g. "1. Header with your name and one-line tagline: '...'  2. Email signup block offering [free thing]  3. Featured product: [their product]  4. Affiliate links section titled '...'  5. About section..."). Give them the actual headline copy to paste in.
+**The 3 Mistakes To Avoid** — short bullet list specific to Gen X women setting up their first storefront.
+**Your Next Move** — one bold sentence. The first click to make today.`,
+
+  launch_plan: `${BASE_VOICE}
+
+TOOL: 30-DAY LAUNCH PLAN
+Build a daily, doable 30-day plan to launch and sell what they've created. Realistic for someone with limited hours. Mix content creation, audience building, product promotion, and affiliate income. Use ONE primary platform (recommend based on their niche — usually Instagram, Facebook, Pinterest, or TikTok for this audience).
+
+REQUIRED SECTIONS (use these exact bold headers, in order):
+**Your Platform & Why** — 2-3 sentences. Name the ONE platform (Instagram, Facebook, Pinterest, or TikTok). Explain why that platform fits THEIR audience and time budget.
+**Week 1 — Foundation (Days 1-7)** — daily list. Format each as: "**Day 1:** [action — one sentence, max 30 mins]". Focus: profile setup, first 3 posts, defining content pillars.
+**Week 2 — Showing Up (Days 8-14)** — daily list, same format. Focus: consistent posting, story/engagement habits, growing first 100 followers.
+**Week 3 — Building Trust (Days 15-21)** — daily list. Focus: free value content, email list growth, soft mentions of the product.
+**Week 4 — Launch & Sell (Days 22-30)** — daily list. Focus: pre-launch teasers, launch announcement, daily sales-driving posts, affiliate income posts.
+**3 Ready-To-Post Captions** — write out THREE complete social posts they can copy-paste this week. Each labeled (e.g. "**Post 1 — Introduction**"), in their authentic voice, with hashtags. Make them specific to their niche.
+**Your Next Move** — one bold sentence. The single action for today (Day 1).`,
+};
+
+type ToolKey = keyof typeof PROMPTS;
+
+// ===== Schemas =====
+const startingPointSchema = z.object({
+  tool: z.literal("starting_point"),
   niche: z.string().trim().min(1).max(1000),
   roadblock: z.string().trim().min(1).max(1000),
   day: z.string().trim().min(1).max(1000),
 });
 
+const productSchema = z.object({
+  tool: z.literal("product"),
+  productNotes: z.string().trim().max(1000).default(""),
+});
+
+const storefrontSchema = z.object({
+  tool: z.literal("storefront"),
+  storefrontNotes: z.string().trim().max(1000).default(""),
+});
+
+const launchPlanSchema = z.object({
+  tool: z.literal("launch_plan"),
+  hoursPerDay: z.string().trim().min(1).max(500),
+  platformPreference: z.string().trim().max(500).default(""),
+});
+
+const inputSchema = z.discriminatedUnion("tool", [
+  startingPointSchema, productSchema, storefrontSchema, launchPlanSchema,
+]);
+
+// ===== Plan persistence =====
+export const getUserPlan = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data } = await supabaseAdmin
+      .from("user_plans").select("*").eq("user_id", context.userId).maybeSingle();
+    return { plan: data ?? null };
+  });
+
+async function upsertPlan(userId: string, patch: Record<string, string | null>) {
+  await supabaseAdmin.from("user_plans").upsert(
+    { user_id: userId, ...patch },
+    { onConflict: "user_id" }
+  );
+}
+
+// ===== Usage tracking =====
 export const getRemainingRequests = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const today = new Date().toISOString().slice(0, 10);
     const { data } = await supabaseAdmin
-      .from("ai_usage")
-      .select("request_count")
-      .eq("user_id", context.userId)
-      .eq("usage_date", today)
-      .maybeSingle();
+      .from("ai_usage").select("request_count")
+      .eq("user_id", context.userId).eq("usage_date", today).maybeSingle();
     const used = data?.request_count ?? 0;
     return { remaining: Math.max(0, 20 - used), limit: 20 };
   });
 
+// ===== Build the user message with prior context =====
+function buildUserMessage(input: z.infer<typeof inputSchema>, plan: Record<string, unknown> | null): string {
+  const parts: string[] = [];
+  const niche = (plan?.niche as string) || "";
+  const roadblock = (plan?.roadblock as string) || "";
+  const day = (plan?.day as string) || "";
+  const startingPoint = (plan?.starting_point_output as string) || "";
+  const product = (plan?.product_output as string) || "";
+  const storefront = (plan?.storefront_output as string) || "";
+
+  if (input.tool === "starting_point") {
+    parts.push(`Your Niche or Topic Idea:\n${input.niche}`);
+    parts.push(`Your Biggest Roadblock Right Now:\n${input.roadblock}`);
+    parts.push(`What Does Your Day Look Like?:\n${input.day}`);
+  } else if (input.tool === "product") {
+    if (niche) parts.push(`Their Niche:\n${niche}`);
+    if (roadblock) parts.push(`Their Roadblock:\n${roadblock}`);
+    if (day) parts.push(`Their Daily Reality:\n${day}`);
+    if (startingPoint) parts.push(`Their Starting Point Plan (already given):\n${startingPoint}`);
+    parts.push(`Any extra context from the user about the product they want:\n${input.productNotes || "(none — pick the strongest product for them)"}`);
+  } else if (input.tool === "storefront") {
+    if (niche) parts.push(`Their Niche:\n${niche}`);
+    if (product) parts.push(`The Product They Are Selling:\n${product}`);
+    parts.push(`Extra notes from the user:\n${input.storefrontNotes || "(none)"}`);
+  } else if (input.tool === "launch_plan") {
+    if (niche) parts.push(`Their Niche:\n${niche}`);
+    if (day) parts.push(`Their Daily Reality:\n${day}`);
+    if (product) parts.push(`The Product They Are Selling:\n${product}`);
+    if (storefront) parts.push(`Their Storefront Setup:\n${storefront}`);
+    parts.push(`Hours They Can Realistically Commit Per Day:\n${input.hoursPerDay}`);
+    parts.push(`Platform Preference (if any):\n${input.platformPreference || "(no preference — recommend the best one)"}`);
+  }
+  return parts.join("\n\n");
+}
+
+// ===== Main generation function =====
 export const generateXcelerateResponse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => inputSchema.parse(input))
   .handler(async function* ({ data, context }) {
-    // Atomic check + increment. Throws DAILY_LIMIT_REACHED if over.
     const { data: remainingData, error: rpcErr } = await supabaseAdmin.rpc(
-      "increment_ai_usage",
-      { _user_id: context.userId },
+      "increment_ai_usage", { _user_id: context.userId }
     );
     if (rpcErr) {
       if (rpcErr.message?.includes("DAILY_LIMIT_REACHED")) {
@@ -73,45 +184,46 @@ export const generateXcelerateResponse = createServerFn({ method: "POST" })
     }
     const remaining = remainingData as number;
 
-    const userMessage = `Your Niche or Topic Idea:\n${data.niche}\n\nYour Biggest Roadblock Right Now:\n${data.roadblock}\n\nWhat Does Your Day Look Like?:\n${data.day}`;
+    // Load existing plan for context
+    const { data: planRow } = await supabaseAdmin
+      .from("user_plans").select("*").eq("user_id", context.userId).maybeSingle();
+
+    // If starting point, save niche/roadblock/day immediately
+    if (data.tool === "starting_point") {
+      await upsertPlan(context.userId, {
+        niche: data.niche, roadblock: data.roadblock, day: data.day,
+      });
+    }
+
+    const systemPrompt = PROMPTS[data.tool as ToolKey];
+    const userMessage = buildUserMessage(data, planRow as Record<string, unknown> | null);
 
     const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) {
-      yield { type: "error" as const, message: "AI service is not configured." };
-      return;
-    }
+    if (!apiKey) { yield { type: "error" as const, message: "AI service not configured." }; return; }
 
     const upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         stream: true,
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: systemPrompt },
           { role: "user", content: userMessage },
         ],
       }),
     });
 
     if (!upstream.ok || !upstream.body) {
-      if (upstream.status === 429) {
-        yield { type: "error" as const, message: "The AI is busy right now. Please wait a moment and try again." };
-        return;
-      }
-      if (upstream.status === 402) {
-        yield { type: "error" as const, message: "AI credits exhausted. Please contact support." };
-        return;
-      }
+      if (upstream.status === 429) { yield { type: "error" as const, message: "The AI is busy right now. Please wait a moment and try again." }; return; }
+      if (upstream.status === 402) { yield { type: "error" as const, message: "AI credits exhausted. Please contact support." }; return; }
       yield { type: "error" as const, message: "The AI service had an error. Please try again." };
       return;
     }
 
     yield { type: "meta" as const, remaining };
 
+    let assembled = "";
     let buffer = "";
     for await (const chunk of upstream.body.pipeThrough(new TextDecoderStream())) {
       buffer += chunk;
@@ -121,14 +233,33 @@ export const generateXcelerateResponse = createServerFn({ method: "POST" })
         const trimmed = line.trim();
         if (!trimmed.startsWith("data:")) continue;
         const payload = trimmed.slice(5).trim();
-        if (payload === "[DONE]") return;
+        if (payload === "[DONE]") {
+          // save final output to plan
+          const fieldMap: Record<ToolKey, string> = {
+            starting_point: "starting_point_output",
+            product: "product_output",
+            storefront: "storefront_output",
+            launch_plan: "launch_plan_output",
+          };
+          await upsertPlan(context.userId, { [fieldMap[data.tool as ToolKey]]: assembled });
+          return;
+        }
         try {
           const json = JSON.parse(payload);
           const delta = json.choices?.[0]?.delta?.content;
-          if (delta) yield { type: "delta" as const, text: delta as string };
-        } catch {
-          // ignore partial JSON
-        }
+          if (delta) { assembled += delta; yield { type: "delta" as const, text: delta as string }; }
+        } catch { /* ignore */ }
       }
+    }
+
+    // Stream ended without [DONE] — still persist
+    if (assembled) {
+      const fieldMap: Record<ToolKey, string> = {
+        starting_point: "starting_point_output",
+        product: "product_output",
+        storefront: "storefront_output",
+        launch_plan: "launch_plan_output",
+      };
+      await upsertPlan(context.userId, { [fieldMap[data.tool as ToolKey]]: assembled });
     }
   });
