@@ -167,7 +167,7 @@ function Dashboard() {
                   <span
                     aria-hidden
                     className="absolute inset-0 -z-10 opacity-100"
-                    style={{ background: "linear-gradient(135deg, oklch(0.97 0.04 55) 0%, oklch(0.96 0.05 340) 100%)" }}
+                    style={{ background: "linear-gradient(135deg, oklch(0.62 0.27 348 / 0.18) 0%, oklch(0.55 0.22 295 / 0.18) 100%)" }}
                   />
                 )}
                 {active && (
@@ -176,7 +176,7 @@ function Dashboard() {
                 <div className="flex items-center justify-between">
                   <span className={`text-2xl leading-none transition-transform duration-300 ${active ? "scale-110" : "group-hover:scale-110"}`}>{t.emoji}</span>
                   {done && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[oklch(0.95_0.08_145)] px-2 py-0.5 text-[10px] font-bold text-[oklch(0.45_0.15_145)]">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[oklch(0.70_0.18_145/0.18)] px-2 py-0.5 text-[10px] font-bold text-[oklch(0.78_0.18_145)]">
                       ✓ Done
                     </span>
                   )}
@@ -454,8 +454,8 @@ function ToolPanel({
           {output && (
             <>
               {streaming && (
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[oklch(0.96_0.05_340)] px-3 py-1 text-xs font-semibold text-[oklch(0.50_0.20_348)]">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[oklch(0.62_0.27_348)]" /> Streaming live
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[oklch(0.62_0.27_348/0.18)] px-3 py-1 text-xs font-semibold text-[oklch(0.80_0.18_348)]">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[oklch(0.75_0.22_348)]" /> Streaming live
                 </div>
               )}
               <div className="prose-xcel text-[15px] leading-relaxed text-foreground">{renderMarkdown(output)}</div>
