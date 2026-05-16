@@ -109,25 +109,25 @@ function Dashboard() {
       <section className="relative mx-auto max-w-5xl px-6 py-10">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4 xcel-fade-up">
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold text-muted-foreground backdrop-blur">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-sm font-semibold text-muted-foreground backdrop-blur">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[oklch(0.65_0.20_145)]" />
               {completedCount === 0 ? "Let's start fresh" : completedCount === 4 ? "You did the whole thing 🎉" : `${completedCount} of 4 done — keep going`}
             </div>
-            <h1 className="text-3xl font-extrabold leading-tight sm:text-4xl">
+            <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl">
               Hey — let's build{" "}
               <span className="bg-gradient-to-r from-[oklch(0.65_0.22_35)] via-[oklch(0.62_0.27_348)] to-[oklch(0.55_0.22_295)] bg-clip-text text-transparent">
                 your thing
               </span>{" "}
               👋
             </h1>
-            <p className="mt-2 text-muted-foreground">Four steps. No fluff. You'll have something real today.</p>
+            <p className="mt-3 text-lg text-muted-foreground">Four steps. No fluff. You'll have something real today.</p>
             {remaining !== null && (
-              <p className="mt-2 text-xs text-muted-foreground">{remaining} of 20 AI requests left today</p>
+              <p className="mt-2 text-sm text-muted-foreground">{remaining} of 20 AI requests left today</p>
             )}
           </div>
           {(plan?.niche || plan?.starting_point_output) && (
             <button onClick={handleStartFresh}
-              className="rounded-full border border-border bg-card/80 px-4 py-2 text-xs font-semibold text-muted-foreground backdrop-blur transition hover:border-foreground/40 hover:text-foreground">
+              className="rounded-full border border-border bg-card/80 px-4 py-2 text-sm font-semibold text-muted-foreground backdrop-blur transition hover:border-foreground/40 hover:text-foreground">
               ↺ Start fresh
             </button>
           )}
@@ -135,11 +135,11 @@ function Dashboard() {
 
         {/* Progress bar */}
         <div className="mb-8 xcel-fade-up" style={{ animationDelay: "0.05s" }}>
-          <div className="mb-2 flex items-center justify-between text-xs font-semibold text-muted-foreground">
+          <div className="mb-2 flex items-center justify-between text-sm font-semibold text-muted-foreground">
             <span>Your launch progress</span>
             <span>{Math.round(progressPct)}%</span>
           </div>
-          <div className="relative h-2 w-full overflow-hidden rounded-full bg-border/60">
+          <div className="relative h-3 w-full overflow-hidden rounded-full bg-border/60">
             <div
               className="h-full rounded-full transition-all duration-700 ease-out"
               style={{ width: `${progressPct}%`, background: "var(--gradient-brand)" }}
@@ -176,14 +176,14 @@ function Dashboard() {
                 <div className="flex items-center justify-between">
                   <span className={`text-2xl leading-none transition-transform duration-300 ${active ? "scale-110" : "group-hover:scale-110"}`}>{t.emoji}</span>
                   {done && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[oklch(0.70_0.18_145/0.18)] px-2 py-0.5 text-[10px] font-bold text-[oklch(0.78_0.18_145)]">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[oklch(0.70_0.18_145/0.18)] px-2 py-0.5 text-xs font-bold text-[oklch(0.78_0.18_145)]">
                       ✓ Done
                     </span>
                   )}
                 </div>
-                <div className="mt-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Step {t.num}</div>
-                <div className="mt-1 text-sm font-bold leading-tight">{t.title}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{t.subtitle}</div>
+                <div className="mt-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Step {t.num}</div>
+                <div className="mt-1 text-base font-bold leading-tight">{t.title}</div>
+                <div className="mt-1 text-sm text-muted-foreground">{t.subtitle}</div>
               </button>
             );
           })}
@@ -420,7 +420,7 @@ function ToolPanel({
           )}
 
           <button type="submit" disabled={streaming || disabled}
-            className="group relative w-full overflow-hidden rounded-xl px-6 py-3.5 text-base font-bold text-white shadow-[0_10px_30px_-10px_oklch(0.62_0.27_348/0.55)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_15px_40px_-10px_oklch(0.62_0.27_348/0.65)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+            className="group relative w-full overflow-hidden rounded-xl px-6 py-4 text-lg font-bold text-white shadow-[0_10px_30px_-10px_oklch(0.62_0.27_348/0.55)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_15px_40px_-10px_oklch(0.62_0.27_348/0.65)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
             style={{ background: "var(--gradient-brand)" }}>
             <span className="relative z-10">
               {streaming ? "✨ Cooking it up…" : output ? "↺ Try again with new info" : "✨ Show me what to do"}
@@ -436,7 +436,7 @@ function ToolPanel({
         <div ref={outputRef} className="relative mt-8 overflow-hidden rounded-2xl border border-border/70 bg-background/90 p-6 shadow-sm xcel-fade-up">
           {streaming && !output && (
             <div className="flex flex-col items-start gap-4 py-6">
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <div className="flex items-center gap-2 text-base font-semibold text-foreground">
                 <span className="inline-flex gap-1">
                   <span className="h-2 w-2 rounded-full" style={{ background: "oklch(0.65 0.22 35)", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0s" }} />
                   <span className="h-2 w-2 rounded-full" style={{ background: "oklch(0.62 0.27 348)", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0.16s" }} />
@@ -454,14 +454,14 @@ function ToolPanel({
           {output && (
             <>
               {streaming && (
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[oklch(0.62_0.27_348/0.18)] px-3 py-1 text-xs font-semibold text-[oklch(0.80_0.18_348)]">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[oklch(0.62_0.27_348/0.18)] px-3 py-1 text-sm font-semibold text-[oklch(0.80_0.18_348)]">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[oklch(0.75_0.22_348)]" /> Streaming live
                 </div>
               )}
-              <div className="prose-xcel text-[15px] leading-relaxed text-foreground">{renderMarkdown(output)}</div>
+              <div className="prose-xcel text-[17px] leading-[1.75] text-foreground">{renderMarkdown(output)}</div>
               {!streaming && (
                 <div className="mt-6 flex flex-wrap gap-2">
-                  <button onClick={handleCopy} className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold transition hover:border-foreground/40 hover:bg-accent">
+                  <button onClick={handleCopy} className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-base font-semibold transition hover:border-foreground/40 hover:bg-accent">
                     {copied ? "✓ Copied!" : "📋 Copy"}
                   </button>
                 </div>
@@ -485,9 +485,9 @@ function ToolHeader({ tool }: { tool: ToolKey }) {
         <span className="drop-shadow-sm">{t.emoji}</span>
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Step {t.num} of 4</p>
-        <h2 className="mt-0.5 text-2xl font-extrabold leading-tight">{t.title}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{t.subtitle}</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Step {t.num} of 4</p>
+        <h2 className="mt-0.5 text-3xl font-extrabold leading-tight">{t.title}</h2>
+        <p className="mt-1.5 text-base text-muted-foreground">{t.subtitle}</p>
       </div>
     </div>
   );
@@ -529,24 +529,24 @@ function Field({
   return (
     <div className="group">
       <label className="block">
-        <span className="block text-sm font-bold text-foreground">{label}</span>
-        {hint && <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>}
-        <div className={`relative mt-2 rounded-xl border bg-background transition-all duration-200 ${
-          active ? "border-[oklch(0.62_0.27_348/0.4)] shadow-[0_0_0_4px_oklch(0.62_0.27_348/0.08)]" : "border-input hover:border-foreground/30"
-        } focus-within:border-[oklch(0.62_0.27_348/0.6)] focus-within:shadow-[0_0_0_4px_oklch(0.62_0.27_348/0.12)]`}>
+        <span className="block text-base font-bold text-foreground">{label}</span>
+        {hint && <span className="mt-1 block text-sm text-muted-foreground">{hint}</span>}
+        <div className={`relative mt-2.5 rounded-xl border-2 bg-white transition-all duration-200 ${
+          active ? "border-[oklch(0.62_0.27_348/0.5)] shadow-[0_0_0_4px_oklch(0.62_0.27_348/0.15)]" : "border-white/80 hover:border-white"
+        } focus-within:border-[oklch(0.62_0.27_348/0.7)] focus-within:shadow-[0_0_0_4px_oklch(0.62_0.27_348/0.20)]`}>
           <textarea
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
             disabled={disabled}
-            rows={2}
+            rows={3}
             maxLength={1000}
-            className="w-full resize-none rounded-xl bg-transparent px-3.5 py-2.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none disabled:opacity-60"
+            className="w-full resize-none rounded-xl bg-transparent px-4 py-3 text-base text-slate-900 placeholder:text-slate-400 focus-visible:outline-none disabled:opacity-60"
           />
         </div>
       </label>
       {chips && chips.length > 0 && (
-        <div className="mt-2.5 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           {chips.map((chip, i) => {
             const selected = value === chip;
             return (
@@ -555,7 +555,7 @@ function Field({
                 type="button"
                 disabled={disabled}
                 onClick={() => onChange(chip)}
-                className={`xcel-pop rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 ${
+                className={`xcel-pop rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 ${
                   selected
                     ? "border-transparent bg-[oklch(0.62_0.27_348)] text-white shadow-[0_4px_12px_-2px_oklch(0.62_0.27_348/0.5)]"
                     : "border-border bg-background text-muted-foreground hover:border-[oklch(0.62_0.27_348/0.5)] hover:bg-[oklch(0.62_0.27_348/0.06)] hover:text-foreground"
