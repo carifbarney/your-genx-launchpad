@@ -179,7 +179,12 @@ function ToolPanel({
     e.preventDefault();
     if (streaming || disabled) return;
 
-    let payload: Parameters<typeof generate>[0]["data"];
+    type GenInput =
+      | { tool: "starting_point"; niche: string; roadblock: string; day: string }
+      | { tool: "product"; productNotes: string }
+      | { tool: "storefront"; storefrontNotes: string }
+      | { tool: "launch_plan"; hoursPerDay: string; platformPreference: string };
+    let payload: GenInput;
     if (tool === "starting_point") {
       if (!niche.trim() || !roadblock.trim() || !day.trim()) { setErrorMsg("Please fill in all three fields."); return; }
       payload = { tool: "starting_point", niche, roadblock, day };
