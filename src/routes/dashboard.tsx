@@ -80,22 +80,46 @@ function Dashboard() {
     launch_plan: !!plan?.launch_plan_output,
   };
 
+  const completedCount = Object.values(completed).filter(Boolean).length;
+  const progressPct = (completedCount / 4) * 100;
+
   return (
-    <main className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background">
+    <main className="relative min-h-screen overflow-hidden bg-background">
+      {/* Animated background blobs */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full bg-[oklch(0.85_0.13_45)] opacity-40 blur-3xl xcel-blob" />
+        <div className="absolute top-40 -right-32 h-[480px] w-[480px] rounded-full bg-[oklch(0.80_0.18_345)] opacity-30 blur-3xl xcel-blob" style={{ animationDelay: "-6s" }} />
+        <div className="absolute bottom-0 left-1/3 h-[380px] w-[380px] rounded-full bg-[oklch(0.78_0.16_295)] opacity-25 blur-3xl xcel-blob" style={{ animationDelay: "-12s" }} />
+      </div>
+
+      <header className="border-b border-border/60 bg-background/70 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <span className="text-lg font-bold tracking-tight">Xcelerate</span>
+          <span className="bg-gradient-to-r from-[oklch(0.65_0.22_35)] via-[oklch(0.62_0.27_348)] to-[oklch(0.55_0.22_295)] bg-clip-text text-xl font-extrabold tracking-tight text-transparent">
+            Xcelerate
+          </span>
           <div className="flex items-center gap-4">
             <span className="hidden text-xs text-muted-foreground sm:inline">{email}</span>
-            <button onClick={handleLogout} className="text-sm font-semibold underline underline-offset-4">Log out</button>
+            <button onClick={handleLogout} className="text-sm font-semibold text-muted-foreground transition hover:text-foreground">
+              Log out
+            </button>
           </div>
         </div>
       </header>
 
-      <section className="mx-auto max-w-5xl px-6 py-8">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <section className="relative mx-auto max-w-5xl px-6 py-10">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4 xcel-fade-up">
           <div>
-            <h1 className="text-3xl font-bold sm:text-4xl">Hey — let's build this thing 👋</h1>
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold text-muted-foreground backdrop-blur">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[oklch(0.65_0.20_145)]" />
+              {completedCount === 0 ? "Let's start fresh" : completedCount === 4 ? "You did the whole thing 🎉" : `${completedCount} of 4 done — keep going`}
+            </div>
+            <h1 className="text-3xl font-extrabold leading-tight sm:text-4xl">
+              Hey — let's build{" "}
+              <span className="bg-gradient-to-r from-[oklch(0.65_0.22_35)] via-[oklch(0.62_0.27_348)] to-[oklch(0.55_0.22_295)] bg-clip-text text-transparent">
+                your thing
+              </span>{" "}
+              👋
+            </h1>
             <p className="mt-2 text-muted-foreground">Four steps. No fluff. You'll have something real today.</p>
             {remaining !== null && (
               <p className="mt-2 text-xs text-muted-foreground">{remaining} of 20 AI requests left today</p>
@@ -103,32 +127,61 @@ function Dashboard() {
           </div>
           {(plan?.niche || plan?.starting_point_output) && (
             <button onClick={handleStartFresh}
-              className="rounded-md border border-border bg-card px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:border-foreground/40 hover:text-foreground">
+              className="rounded-full border border-border bg-card/80 px-4 py-2 text-xs font-semibold text-muted-foreground backdrop-blur transition hover:border-foreground/40 hover:text-foreground">
               ↺ Start fresh
             </button>
           )}
         </div>
 
+        {/* Progress bar */}
+        <div className="mb-8 xcel-fade-up" style={{ animationDelay: "0.05s" }}>
+          <div className="mb-2 flex items-center justify-between text-xs font-semibold text-muted-foreground">
+            <span>Your launch progress</span>
+            <span>{Math.round(progressPct)}%</span>
+          </div>
+          <div className="relative h-2 w-full overflow-hidden rounded-full bg-border/60">
+            <div
+              className="h-full rounded-full transition-all duration-700 ease-out"
+              style={{ width: `${progressPct}%`, background: "var(--gradient-brand)" }}
+            />
+          </div>
+        </div>
+
         {/* Tool tabs */}
         <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {TOOLS.map((t) => {
+          {TOOLS.map((t, i) => {
             const done = completed[t.key];
             const active = activeTool === t.key;
             return (
               <button
                 key={t.key}
                 onClick={() => setActiveTool(t.key)}
-                className={`rounded-lg border p-4 text-left transition ${
+                className={`group relative overflow-hidden rounded-2xl border p-4 text-left transition-all duration-300 xcel-fade-up ${
                   active
-                    ? "border-cta bg-card shadow-sm"
-                    : "border-border bg-card/40 hover:border-foreground/30"
+                    ? "border-transparent bg-card shadow-[0_10px_30px_-10px_oklch(0.62_0.27_348/0.35)] -translate-y-0.5"
+                    : "border-border bg-card/60 backdrop-blur hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md"
                 }`}
+                style={{ animationDelay: `${0.08 + i * 0.05}s` }}
               >
+                {active && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 -z-10 opacity-100"
+                    style={{ background: "linear-gradient(135deg, oklch(0.97 0.04 55) 0%, oklch(0.96 0.05 340) 100%)" }}
+                  />
+                )}
+                {active && (
+                  <span aria-hidden className="absolute inset-x-0 top-0 h-1" style={{ background: "var(--gradient-brand)" }} />
+                )}
                 <div className="flex items-center justify-between">
-                  <span className="text-2xl leading-none">{t.emoji}</span>
-                  {done && <span className="text-xs font-semibold text-emerald-600">✓ Done</span>}
+                  <span className={`text-2xl leading-none transition-transform duration-300 ${active ? "scale-110" : "group-hover:scale-110"}`}>{t.emoji}</span>
+                  {done && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[oklch(0.95_0.08_145)] px-2 py-0.5 text-[10px] font-bold text-[oklch(0.45_0.15_145)]">
+                      ✓ Done
+                    </span>
+                  )}
                 </div>
-                <div className="mt-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Step {t.num}</div>
+                <div className="mt-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Step {t.num}</div>
                 <div className="mt-1 text-sm font-bold leading-tight">{t.title}</div>
                 <div className="mt-1 text-xs text-muted-foreground">{t.subtitle}</div>
               </button>
@@ -240,7 +293,8 @@ function ToolPanel({
   };
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6 shadow-sm sm:p-8">
+    <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-card/90 p-6 shadow-[0_10px_40px_-20px_rgba(15,23,42,0.18)] backdrop-blur-md sm:p-8 xcel-fade-up">
+      <span aria-hidden className="absolute inset-x-0 top-0 h-1" style={{ background: "var(--gradient-brand)" }} />
       <ToolHeader tool={tool} />
 
       {prerequisite ? (
@@ -366,26 +420,51 @@ function ToolPanel({
           )}
 
           <button type="submit" disabled={streaming || disabled}
-            className="w-full rounded-md bg-cta px-6 py-3 text-base font-bold text-white shadow transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60">
-            {streaming ? "Cooking it up…" : output ? "↺ Try again with new info" : "✨ Show me what to do"}
+            className="group relative w-full overflow-hidden rounded-xl px-6 py-3.5 text-base font-bold text-white shadow-[0_10px_30px_-10px_oklch(0.62_0.27_348/0.55)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_15px_40px_-10px_oklch(0.62_0.27_348/0.65)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+            style={{ background: "var(--gradient-brand)" }}>
+            <span className="relative z-10">
+              {streaming ? "✨ Cooking it up…" : output ? "↺ Try again with new info" : "✨ Show me what to do"}
+            </span>
+            {!streaming && (
+              <span aria-hidden className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+            )}
           </button>
         </form>
       )}
 
       {(output || streaming) && (
-        <div ref={outputRef} className="mt-8 rounded-lg border border-border bg-background p-6 shadow-sm">
+        <div ref={outputRef} className="relative mt-8 overflow-hidden rounded-2xl border border-border/70 bg-background/90 p-6 shadow-sm xcel-fade-up">
           {streaming && !output && (
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-cta" /> Thinking…
+            <div className="flex flex-col items-start gap-4 py-6">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <span className="inline-flex gap-1">
+                  <span className="h-2 w-2 rounded-full" style={{ background: "oklch(0.65 0.22 35)", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0s" }} />
+                  <span className="h-2 w-2 rounded-full" style={{ background: "oklch(0.62 0.27 348)", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0.16s" }} />
+                  <span className="h-2 w-2 rounded-full" style={{ background: "oklch(0.55 0.22 295)", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0.32s" }} />
+                </span>
+                Cari's AI is thinking this through…
+              </div>
+              <div className="w-full space-y-2">
+                <div className="h-3 w-2/3 rounded-full bg-muted xcel-shimmer" />
+                <div className="h-3 w-full rounded-full bg-muted xcel-shimmer" />
+                <div className="h-3 w-5/6 rounded-full bg-muted xcel-shimmer" />
+              </div>
             </div>
           )}
           {output && (
             <>
-              <div className="text-[15px] leading-relaxed text-foreground">{renderMarkdown(output)}</div>
+              {streaming && (
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[oklch(0.96_0.05_340)] px-3 py-1 text-xs font-semibold text-[oklch(0.50_0.20_348)]">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[oklch(0.62_0.27_348)]" /> Streaming live
+                </div>
+              )}
+              <div className="prose-xcel text-[15px] leading-relaxed text-foreground">{renderMarkdown(output)}</div>
               {!streaming && (
-                <button onClick={handleCopy} className="mt-6 inline-flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 text-sm font-semibold hover:bg-accent">
-                  {copied ? "Copied!" : "Copy"}
-                </button>
+                <div className="mt-6 flex flex-wrap gap-2">
+                  <button onClick={handleCopy} className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold transition hover:border-foreground/40 hover:bg-accent">
+                    {copied ? "✓ Copied!" : "📋 Copy"}
+                  </button>
+                </div>
               )}
             </>
           )}
@@ -398,10 +477,18 @@ function ToolPanel({
 function ToolHeader({ tool }: { tool: ToolKey }) {
   const t = TOOLS.find((x) => x.key === tool)!;
   return (
-    <div>
-      <p className="text-xs font-bold uppercase tracking-wider text-cta">Step {t.num} of 4</p>
-      <h2 className="mt-1 text-2xl font-bold">{t.title}</h2>
-      <p className="mt-2 text-sm text-muted-foreground">{t.subtitle}</p>
+    <div className="flex items-start gap-4">
+      <div
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl shadow-[0_8px_20px_-8px_oklch(0.62_0.27_348/0.45)]"
+        style={{ background: "var(--gradient-brand)" }}
+      >
+        <span className="drop-shadow-sm">{t.emoji}</span>
+      </div>
+      <div className="min-w-0">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Step {t.num} of 4</p>
+        <h2 className="mt-0.5 text-2xl font-extrabold leading-tight">{t.title}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t.subtitle}</p>
+      </div>
     </div>
   );
 }
@@ -438,34 +525,47 @@ function Field({
   hint?: string;
   chips?: string[];
 }) {
+  const active = value.trim().length > 0;
   return (
-    <div>
+    <div className="group">
       <label className="block">
         <span className="block text-sm font-bold text-foreground">{label}</span>
         {hint && <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>}
-        <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          disabled={disabled}
-          rows={2}
-          maxLength={1000}
-          className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta/50 disabled:opacity-60"
-        />
+        <div className={`relative mt-2 rounded-xl border bg-background transition-all duration-200 ${
+          active ? "border-[oklch(0.62_0.27_348/0.4)] shadow-[0_0_0_4px_oklch(0.62_0.27_348/0.08)]" : "border-input hover:border-foreground/30"
+        } focus-within:border-[oklch(0.62_0.27_348/0.6)] focus-within:shadow-[0_0_0_4px_oklch(0.62_0.27_348/0.12)]`}>
+          <textarea
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            disabled={disabled}
+            rows={2}
+            maxLength={1000}
+            className="w-full resize-none rounded-xl bg-transparent px-3.5 py-2.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none disabled:opacity-60"
+          />
+        </div>
       </label>
       {chips && chips.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-2">
-          {chips.map((chip) => (
-            <button
-              key={chip}
-              type="button"
-              disabled={disabled}
-              onClick={() => onChange(chip)}
-              className="rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground transition hover:border-cta/60 hover:bg-cta/5 hover:text-foreground disabled:opacity-50"
-            >
-              {chip}
-            </button>
-          ))}
+        <div className="mt-2.5 flex flex-wrap gap-2">
+          {chips.map((chip, i) => {
+            const selected = value === chip;
+            return (
+              <button
+                key={chip}
+                type="button"
+                disabled={disabled}
+                onClick={() => onChange(chip)}
+                className={`xcel-pop rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 ${
+                  selected
+                    ? "border-transparent bg-[oklch(0.62_0.27_348)] text-white shadow-[0_4px_12px_-2px_oklch(0.62_0.27_348/0.5)]"
+                    : "border-border bg-background text-muted-foreground hover:border-[oklch(0.62_0.27_348/0.5)] hover:bg-[oklch(0.62_0.27_348/0.06)] hover:text-foreground"
+                }`}
+                style={{ animationDelay: `${i * 0.04}s` }}
+              >
+                {chip}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
