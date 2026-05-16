@@ -214,13 +214,14 @@ function Dashboard() {
 
 // ===== Tool panel =====
 function ToolPanel({
-  tool, plan, onComplete, onUsage, disabled,
+  tool, plan, onComplete, onUsage, disabled, onAdvance,
 }: {
   tool: ToolKey;
   plan: PlanRow;
   onComplete: () => void;
   onUsage: (remaining: number) => void;
   disabled: boolean;
+  onAdvance: (next: ToolKey) => void;
 }) {
   const generate = useServerFn(generateXcelerateResponse);
   const [output, setOutput] = useState<string>(() => {
@@ -468,7 +469,7 @@ function ToolPanel({
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[oklch(0.75_0.22_348)]" /> Streaming live
                 </div>
               )}
-              <div className="prose-xcel text-[17px] leading-[1.75] text-foreground">{renderMarkdown(output)}</div>
+              <OutputCards output={output} streaming={streaming} />
               {!streaming && tool === "product" && (
                 <BuildItWithAI output={output} plan={plan} />
               )}
@@ -479,10 +480,21 @@ function ToolPanel({
                 <LaunchCalendar output={output} />
               )}
               {!streaming && (
-                <div className="mt-6 flex flex-wrap gap-2">
+                <div className="mt-6 flex flex-wrap items-center gap-3">
                   <button onClick={handleCopy} className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-base font-semibold transition hover:border-foreground/40 hover:bg-accent">
                     {copied ? "✓ Copied!" : "📋 Copy"}
                   </button>
+                  {NEXT_TOOL[tool] && (
+                    <button
+                      type="button"
+                      onClick={() => onAdvance(NEXT_TOOL[tool]!)}
+                      className="group ml-auto inline-flex items-center gap-2 rounded-full px-6 py-3 text-base font-extrabold text-white shadow-[0_10px_30px_-10px_oklch(0.62_0.27_348/0.55)] transition-all hover:-translate-y-0.5 hover:shadow-[0_15px_40px_-10px_oklch(0.62_0.27_348/0.65)]"
+                      style={{ background: "var(--gradient-brand)" }}
+                    >
+                      Next: {TOOLS.find((t) => t.key === NEXT_TOOL[tool])!.title}
+                      <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                    </button>
+                  )}
                 </div>
               )}
             </>
