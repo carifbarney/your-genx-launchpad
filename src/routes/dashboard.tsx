@@ -23,6 +23,12 @@ const TOOLS: { key: ToolKey; num: number; emoji: string; title: string; subtitle
   { key: "launch_plan",    num: 4, emoji: "🚀", title: "Launch & Sell",   subtitle: "Your 30-day game plan" },
 ];
 
+const NEXT_TOOL: Partial<Record<ToolKey, ToolKey>> = {
+  starting_point: "product",
+  product: "storefront",
+  storefront: "launch_plan",
+};
+
 type PlanRow = {
   niche: string | null; roadblock: string | null; day: string | null;
   starting_point_output: string | null; product_output: string | null;
@@ -196,6 +202,10 @@ function Dashboard() {
           onComplete={refreshPlan}
           onUsage={(r) => setRemaining(r)}
           disabled={remaining === 0}
+          onAdvance={(next) => {
+            setActiveTool(next);
+            if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
         />
       </section>
     </main>
