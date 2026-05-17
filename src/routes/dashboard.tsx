@@ -839,13 +839,12 @@ function BuildItWithAI({ output, plan }: { output: string; plan: PlanRow }) {
 
 // ===== Storefront walkthrough (videos + step cards) =====
 function StorefrontWalkthrough() {
-  // Curated YouTube tutorials — pick known walkthroughs for Beacons + Stan Store
+  // Curated YouTube tutorial for Beacons
   const videos = [
     { id: "wbWtUDfpacE", title: "Beacons.ai — Complete Beginner Walkthrough", platform: "Beacons" },
-    { id: "AKLBcaQ-GtI", title: "Stan Store — Set Up From Scratch", platform: "Stan Store" },
   ];
   const steps = [
-    { n: 1, t: "Create your account", d: 'Go to beacons.ai (or stan.store). Sign up with the email you check every day — not a random one. Pick a username that\'s your name or your niche (e.g. @ClaireAtHome).' },
+    { n: 1, t: "Create your account", d: 'Go to beacons.ai. Sign up with the email you check every day — not a random one. Pick a username that\'s your name or your niche (e.g. @ClaireAtHome).' },
     { n: 2, t: "Add a real profile photo", d: "Take a fresh selfie in good light, smiling. No logo, no stock image. People buy from faces they trust." },
     { n: 3, t: "Write your one-line bio", d: 'Format: "I help [who] do [what] without [the pain point]." Example: "I help busy moms get dinner on the table in 20 minutes — without takeout guilt."' },
     { n: 4, t: "Add your free thing first", d: "Before you sell anything, give a free PDF or checklist in exchange for an email. This is your list. Your list is the business." },
@@ -864,7 +863,7 @@ function StorefrontWalkthrough() {
             </p>
           </div>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="mx-auto max-w-lg">
           {videos.map((v) => (
             <div key={v.id} className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
               <div className="relative aspect-video bg-black">
