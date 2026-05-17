@@ -865,21 +865,39 @@ function StorefrontWalkthrough() {
         </div>
         <div className="mx-auto max-w-lg">
           {videos.map((v) => (
-            <div key={v.id} className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+            <a
+              key={v.id}
+              href={`https://www.youtube.com/watch?v=${v.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+            >
               <div className="relative aspect-video bg-black">
-                <iframe
-                  src={`https://www.youtube.com/embed/${v.id}`}
-                  title={v.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="absolute inset-0 h-full w-full"
+                <img
+                  src={`https://img.youtube.com/vi/${v.id}/maxresdefault.jpg`}
+                  alt={v.title}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${v.id}/hqdefault.jpg`;
+                  }}
                 />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors group-hover:bg-black/20">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform group-hover:scale-110">
+                    <svg className="ml-1 h-6 w-6 text-red-600" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
               </div>
-              <div className="p-3">
-                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{v.platform}</p>
-                <p className="mt-1 text-sm font-semibold text-foreground">{v.title}</p>
+              <div className="flex items-center justify-between p-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{v.platform}</p>
+                  <p className="mt-1 text-sm font-semibold text-foreground">{v.title}</p>
+                </div>
+                <span className="rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 transition-colors group-hover:bg-red-100">Watch on YouTube →</span>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>
