@@ -863,7 +863,7 @@ function StorefrontWalkthrough() {
             </p>
           </div>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="mx-auto max-w-lg">
           {videos.map((v) => (
             <div key={v.id} className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
               <div className="relative aspect-video bg-black">
