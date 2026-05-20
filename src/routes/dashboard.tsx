@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import xcelerateLogo from "@/assets/xcelerate-logo.png";
 import {
   generateXcelerateResponse,
   getRemainingRequests,
@@ -17,10 +18,10 @@ export const Route = createFileRoute("/dashboard")({
 type ToolKey = "starting_point" | "product" | "storefront" | "launch_plan";
 
 const TOOLS: { key: ToolKey; num: number; emoji: string; title: string; subtitle: string }[] = [
-  { key: "starting_point", num: 1, emoji: "🧭", title: "Find Your Lane", subtitle: "Get unstuck in 60 seconds" },
-  { key: "product",        num: 2, emoji: "💡", title: "Build Your Thing", subtitle: "A real product, not a maybe" },
-  { key: "storefront",     num: 3, emoji: "🛍️", title: "Open Your Shop", subtitle: "Beacons in one sitting" },
-  { key: "launch_plan",    num: 4, emoji: "🚀", title: "Launch & Sell",   subtitle: "Your 30-day game plan" },
+  { key: "starting_point", num: 1, emoji: "⚡", title: "Find Your Lane",   subtitle: "Get unstuck in 60 seconds" },
+  { key: "product",        num: 2, emoji: "💿", title: "Build Your Thing", subtitle: "A real product. No maybes." },
+  { key: "storefront",     num: 3, emoji: "📼", title: "Open Your Shop",   subtitle: "Beacons in one sitting" },
+  { key: "launch_plan",    num: 4, emoji: "🎸", title: "Launch & Sell",    subtitle: "Your 30-day game plan" },
 ];
 
 const NEXT_TOOL: Partial<Record<ToolKey, ToolKey>> = {
@@ -76,7 +77,11 @@ function Dashboard() {
   };
 
   if (checking) {
-    return <main className="flex min-h-screen items-center justify-center bg-background"><p className="text-sm text-muted-foreground">Loading…</p></main>;
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background">
+        <p className="xcel-kicker xcel-flicker">Powering up…</p>
+      </main>
+    );
   }
 
   const completed = {
@@ -91,21 +96,21 @@ function Dashboard() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background">
-      {/* Animated background blobs */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full bg-[oklch(0.85_0.13_45)] opacity-40 blur-3xl xcel-blob" />
-        <div className="absolute top-40 -right-32 h-[480px] w-[480px] rounded-full bg-[oklch(0.80_0.18_345)] opacity-30 blur-3xl xcel-blob" style={{ animationDelay: "-6s" }} />
-        <div className="absolute bottom-0 left-1/3 h-[380px] w-[380px] rounded-full bg-[oklch(0.78_0.16_295)] opacity-25 blur-3xl xcel-blob" style={{ animationDelay: "-12s" }} />
+      {/* Retro neon background — grid floor + sunset blobs */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute inset-x-0 bottom-0 top-1/2"><div className="xcel-grid-floor" /></div>
+        <div className="absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full bg-[#FE2DA3] opacity-25 blur-3xl xcel-blob" />
+        <div className="absolute top-40 -right-32 h-[480px] w-[480px] rounded-full bg-[#8A2BE2] opacity-25 blur-3xl xcel-blob" style={{ animationDelay: "-6s" }} />
+        <div className="absolute bottom-0 left-1/3 h-[380px] w-[380px] rounded-full bg-[#00F0D1] opacity-15 blur-3xl xcel-blob" style={{ animationDelay: "-12s" }} />
       </div>
 
-      <header className="border-b border-border/60 bg-background/70 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <span className="bg-gradient-to-r from-[oklch(0.65_0.22_35)] via-[oklch(0.62_0.27_348)] to-[oklch(0.55_0.22_295)] bg-clip-text text-xl font-extrabold tracking-tight text-transparent">
-            Xcelerate
-          </span>
+      <header className="relative border-b border-[#FE2DA3]/20 bg-black/40 backdrop-blur-md">
+        <span aria-hidden className="absolute inset-x-0 bottom-0 h-px" style={{ background: "linear-gradient(90deg, transparent, #FE2DA3 30%, #00F0D1 70%, transparent)" }} />
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
+          <img src={xcelerateLogo} alt="Xcelerate" className="h-10 w-auto drop-shadow-[0_0_12px_rgba(254,45,163,0.55)]" />
           <div className="flex items-center gap-4">
-            <span className="hidden text-xs text-muted-foreground sm:inline">{email}</span>
-            <button onClick={handleLogout} className="text-sm font-semibold text-muted-foreground transition hover:text-foreground">
+            <span className="hidden font-mono text-[11px] uppercase tracking-widest text-[#00F0D1]/80 sm:inline">{email}</span>
+            <button onClick={handleLogout} className="xcel-kicker transition hover:text-[#00F0D1]">
               Log out
             </button>
           </div>
@@ -115,40 +120,44 @@ function Dashboard() {
       <section className="relative mx-auto max-w-5xl px-6 py-10">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4 xcel-fade-up">
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-sm font-semibold text-muted-foreground backdrop-blur">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[oklch(0.65_0.20_145)]" />
-              {completedCount === 0 ? "Let's start fresh" : completedCount === 4 ? "You did the whole thing 🎉" : `${completedCount} of 4 done — keep going`}
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#FE2DA3]/40 bg-black/60 px-3 py-1 backdrop-blur">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#00F0D1] shadow-[0_0_8px_#00F0D1]" />
+              <span className="xcel-kicker text-[#F5F2EC]">
+                {completedCount === 0 ? "Side A — Track 1" : completedCount === 4 ? "Album complete — go gold" : `${completedCount} of 4 in the can`}
+              </span>
             </div>
-            <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl">
-              Hey — let's build{" "}
-              <span className="bg-gradient-to-r from-[oklch(0.65_0.22_35)] via-[oklch(0.62_0.27_348)] to-[oklch(0.55_0.22_295)] bg-clip-text text-transparent">
-                your thing
-              </span>{" "}
-              👋
+            <h1 className="text-5xl leading-[0.95] sm:text-6xl">
+              <span className="xcel-chrome-text">All gas.</span>
+              <br />
+              <span className="xcel-neon-pink xcel-neon-pulse">No brakes.</span>
             </h1>
-            <p className="mt-3 text-lg text-muted-foreground">Four steps. No fluff. You'll have something real today.</p>
+            <p className="mt-4 max-w-md font-sans text-base normal-case tracking-normal text-[#F5F2EC]/75">
+              Four tracks. No filler. You walk out tonight with something real.
+            </p>
             {remaining !== null && (
-              <p className="mt-2 text-sm text-muted-foreground">{remaining} of 20 AI requests left today</p>
+              <p className="mt-3 font-mono text-[11px] uppercase tracking-widest text-[#00F0D1]/80">
+                ▮ {remaining} of 20 AI runs left today
+              </p>
             )}
           </div>
           {(plan?.niche || plan?.starting_point_output) && (
             <button onClick={handleStartFresh}
-              className="rounded-full border border-border bg-card/80 px-4 py-2 text-sm font-semibold text-muted-foreground backdrop-blur transition hover:border-foreground/40 hover:text-foreground">
-              ↺ Start fresh
+              className="xcel-btn-ghost rounded-full px-4 py-2 text-xs">
+              ↺ Rewind tape
             </button>
           )}
         </div>
 
         {/* Progress bar */}
         <div className="mb-8 xcel-fade-up" style={{ animationDelay: "0.05s" }}>
-          <div className="mb-2 flex items-center justify-between text-sm font-semibold text-muted-foreground">
-            <span>Your launch progress</span>
-            <span>{Math.round(progressPct)}%</span>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="xcel-kicker">Launch sequence</span>
+            <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#00F0D1]">{Math.round(progressPct)}%</span>
           </div>
-          <div className="relative h-3 w-full overflow-hidden rounded-full bg-border/60">
+          <div className="relative h-2.5 w-full overflow-hidden rounded-full border border-[#FE2DA3]/30 bg-black/60">
             <div
               className="h-full rounded-full transition-all duration-700 ease-out"
-              style={{ width: `${progressPct}%`, background: "var(--gradient-brand)" }}
+              style={{ width: `${progressPct}%`, background: "linear-gradient(90deg, #FE2DA3, #8A2BE2, #00F0D1)", boxShadow: "0 0 16px rgba(254,45,163,0.7)" }}
             />
           </div>
         </div>
@@ -164,8 +173,8 @@ function Dashboard() {
                 onClick={() => setActiveTool(t.key)}
                 className={`group relative overflow-hidden rounded-2xl border p-4 text-left transition-all duration-300 xcel-fade-up ${
                   active
-                    ? "border-transparent bg-card shadow-[0_10px_30px_-10px_oklch(0.62_0.27_348/0.35)] -translate-y-0.5"
-                    : "border-border bg-card/60 backdrop-blur hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md"
+                    ? "-translate-y-0.5 border-[#FE2DA3]/60 bg-[#141418] shadow-[0_0_24px_rgba(254,45,163,0.35)]"
+                    : "border-white/10 bg-black/40 backdrop-blur hover:-translate-y-0.5 hover:border-[#00F0D1]/40 hover:shadow-[0_0_18px_rgba(0,240,209,0.18)]"
                 }`}
                 style={{ animationDelay: `${0.08 + i * 0.05}s` }}
               >
@@ -173,23 +182,23 @@ function Dashboard() {
                   <span
                     aria-hidden
                     className="absolute inset-0 -z-10 opacity-100"
-                    style={{ background: "linear-gradient(135deg, oklch(0.62 0.27 348 / 0.18) 0%, oklch(0.55 0.22 295 / 0.18) 100%)" }}
+                    style={{ background: "linear-gradient(135deg, rgba(254,45,163,0.18) 0%, rgba(138,43,226,0.18) 100%)" }}
                   />
                 )}
                 {active && (
-                  <span aria-hidden className="absolute inset-x-0 top-0 h-1" style={{ background: "var(--gradient-brand)" }} />
+                  <span aria-hidden className="absolute inset-x-0 top-0 h-[2px]" style={{ background: "linear-gradient(90deg, #FE2DA3, #00F0D1)", boxShadow: "0 0 10px #FE2DA3" }} />
                 )}
                 <div className="flex items-center justify-between">
                   <span className={`text-2xl leading-none transition-transform duration-300 ${active ? "scale-110" : "group-hover:scale-110"}`}>{t.emoji}</span>
                   {done && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[oklch(0.70_0.18_145/0.18)] px-2 py-0.5 text-xs font-bold text-[oklch(0.78_0.18_145)]">
-                      ✓ Done
+                    <span className="inline-flex items-center gap-1 rounded-full border border-[#00F0D1]/50 bg-[#00F0D1]/10 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-widest text-[#00F0D1] shadow-[0_0_10px_rgba(0,240,209,0.35)]">
+                      ✓ Cut
                     </span>
                   )}
                 </div>
-                <div className="mt-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Step {t.num}</div>
-                <div className="mt-1 text-base font-bold leading-tight">{t.title}</div>
-                <div className="mt-1 text-sm text-muted-foreground">{t.subtitle}</div>
+                <div className="mt-3 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#FE2DA3]">Track 0{t.num}</div>
+                <div className="mt-1 font-[var(--font-display)] text-lg leading-tight tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>{t.title}</div>
+                <div className="mt-1 text-xs normal-case tracking-normal text-[#F5F2EC]/60">{t.subtitle}</div>
               </button>
             );
           })}
@@ -304,12 +313,12 @@ function ToolPanel({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-card/90 p-6 shadow-[0_10px_40px_-20px_rgba(15,23,42,0.18)] backdrop-blur-md sm:p-8 xcel-fade-up">
-      <span aria-hidden className="absolute inset-x-0 top-0 h-1" style={{ background: "var(--gradient-brand)" }} />
+    <div className="xcel-card xcel-scanlines relative overflow-hidden p-6 backdrop-blur-md sm:p-8 xcel-fade-up">
+      <span aria-hidden className="absolute inset-x-0 top-0 h-[2px]" style={{ background: "linear-gradient(90deg, #FE2DA3, #8A2BE2, #00F0D1)", boxShadow: "0 0 12px #FE2DA3" }} />
       <ToolHeader tool={tool} />
 
       {prerequisite ? (
-        <div className="mt-6 rounded-md border border-border bg-background/50 p-5 text-sm text-muted-foreground">
+        <div className="mt-6 rounded-md border border-[#00F0D1]/30 bg-black/40 p-5 text-sm text-[#F5F2EC]/80">
           {prerequisite}
         </div>
       ) : (
