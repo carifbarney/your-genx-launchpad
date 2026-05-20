@@ -436,20 +436,19 @@ function ToolPanel({
           )}
 
           {errorMsg && (
-            <p className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">{errorMsg}</p>
+            <p className="rounded-md border border-[#FF3B6B]/40 bg-[#FF3B6B]/10 px-4 py-3 text-sm font-semibold text-[#FF8FAA]">{errorMsg}</p>
           )}
 
           {disabled && !streaming && (
-            <p className="rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
-              You've used all 20 of today's AI requests. Your quota resets at midnight — come back tomorrow and pick right up where you left off. 💛
+            <p className="rounded-xl border border-[#00F0D1]/40 bg-[#00F0D1]/10 px-4 py-3 text-sm font-semibold text-[#00F0D1]">
+              That's a wrap — all 20 AI runs burned for today. Tape resets at midnight. Come back tomorrow and pick up where you left off.
             </p>
           )}
 
           <button type="submit" disabled={streaming || disabled}
-            className="group relative w-full overflow-hidden rounded-xl px-6 py-4 text-lg font-bold text-white shadow-[0_10px_30px_-10px_oklch(0.62_0.27_348/0.55)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_15px_40px_-10px_oklch(0.62_0.27_348/0.65)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
-            style={{ background: "var(--gradient-brand)" }}>
+            className="xcel-btn-neon group relative w-full overflow-hidden rounded-xl px-6 py-4 text-base disabled:cursor-not-allowed disabled:opacity-60">
             <span className="relative z-10">
-              {streaming ? "✨ Cooking it up…" : disabled ? "🚫 Out of requests for today" : output ? "↺ Try again with new info" : "✨ Show me what to do"}
+              {streaming ? "⚡ Recording…" : disabled ? "🚫 Out of runs for today" : output ? "↺ Run it again" : "⚡ Drop the needle"}
             </span>
             {!streaming && (
               <span aria-hidden className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
@@ -459,29 +458,29 @@ function ToolPanel({
       )}
 
       {(output || streaming) && (
-        <div ref={outputRef} className="relative mt-8 overflow-hidden rounded-2xl border border-border/70 bg-background/90 p-6 shadow-sm xcel-fade-up">
+        <div ref={outputRef} className="relative mt-8 overflow-hidden rounded-2xl border border-[#00F0D1]/30 bg-black/60 p-6 shadow-[0_0_24px_rgba(0,240,209,0.10)] xcel-fade-up">
           {streaming && !output && (
             <div className="flex flex-col items-start gap-4 py-6">
-              <div className="flex items-center gap-2 text-base font-semibold text-foreground">
+              <div className="flex items-center gap-2 text-base font-semibold text-[#F5F2EC]">
                 <span className="inline-flex gap-1">
-                  <span className="h-2 w-2 rounded-full" style={{ background: "oklch(0.65 0.22 35)", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0s" }} />
-                  <span className="h-2 w-2 rounded-full" style={{ background: "oklch(0.62 0.27 348)", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0.16s" }} />
-                  <span className="h-2 w-2 rounded-full" style={{ background: "oklch(0.55 0.22 295)", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0.32s" }} />
+                  <span className="h-2 w-2 rounded-full shadow-[0_0_8px_#FE2DA3]" style={{ background: "#FE2DA3", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0s" }} />
+                  <span className="h-2 w-2 rounded-full shadow-[0_0_8px_#8A2BE2]" style={{ background: "#8A2BE2", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0.16s" }} />
+                  <span className="h-2 w-2 rounded-full shadow-[0_0_8px_#00F0D1]" style={{ background: "#00F0D1", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0.32s" }} />
                 </span>
-                Cari's AI is thinking this through…
+                <span className="xcel-kicker normal-case tracking-widest text-[#00F0D1]">Cari's AI is cooking…</span>
               </div>
               <div className="w-full space-y-2">
-                <div className="h-3 w-2/3 rounded-full bg-muted xcel-shimmer" />
-                <div className="h-3 w-full rounded-full bg-muted xcel-shimmer" />
-                <div className="h-3 w-5/6 rounded-full bg-muted xcel-shimmer" />
+                <div className="h-3 w-2/3 rounded-full bg-white/5 xcel-shimmer" />
+                <div className="h-3 w-full rounded-full bg-white/5 xcel-shimmer" />
+                <div className="h-3 w-5/6 rounded-full bg-white/5 xcel-shimmer" />
               </div>
             </div>
           )}
           {output && (
             <>
               {streaming && (
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[oklch(0.62_0.27_348/0.18)] px-3 py-1 text-sm font-semibold text-[oklch(0.80_0.18_348)]">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[oklch(0.75_0.22_348)]" /> Streaming live
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#FE2DA3]/50 bg-[#FE2DA3]/10 px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-[#FE2DA3]">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#FE2DA3] shadow-[0_0_6px_#FE2DA3]" /> ● REC — live
                 </div>
               )}
               <OutputCards output={output} streaming={streaming} />
@@ -496,15 +495,14 @@ function ToolPanel({
               )}
               {!streaming && (
                 <div className="mt-6 flex flex-wrap items-center gap-3">
-                  <button onClick={handleCopy} className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-base font-semibold transition hover:border-foreground/40 hover:bg-accent">
+                  <button onClick={handleCopy} className="xcel-btn-ghost inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs">
                     {copied ? "✓ Copied!" : "📋 Copy"}
                   </button>
                   {NEXT_TOOL[tool] && (
                     <button
                       type="button"
                       onClick={() => onAdvance(NEXT_TOOL[tool]!)}
-                      className="group ml-auto inline-flex items-center gap-2 rounded-full px-6 py-3 text-base font-extrabold text-white shadow-[0_10px_30px_-10px_oklch(0.62_0.27_348/0.55)] transition-all hover:-translate-y-0.5 hover:shadow-[0_15px_40px_-10px_oklch(0.62_0.27_348/0.65)]"
-                      style={{ background: "var(--gradient-brand)" }}
+                      className="xcel-btn-neon group ml-auto inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm"
                     >
                       Next: {TOOLS.find((t) => t.key === NEXT_TOOL[tool])!.title}
                       <span className="transition-transform group-hover:translate-x-0.5">→</span>
@@ -523,17 +521,17 @@ function ToolPanel({
 function ToolHeader({ tool }: { tool: ToolKey }) {
   const t = TOOLS.find((x) => x.key === tool)!;
   return (
-    <div className="flex items-start gap-4">
+    <div className="relative z-10 flex items-start gap-4">
       <div
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl shadow-[0_8px_20px_-8px_oklch(0.62_0.27_348/0.45)]"
-        style={{ background: "var(--gradient-brand)" }}
+        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-2xl"
+        style={{ background: "linear-gradient(135deg, #FE2DA3 0%, #8A2BE2 100%)", boxShadow: "0 0 24px rgba(254,45,163,0.55), inset 0 1px 0 rgba(255,255,255,0.3)" }}
       >
         <span className="drop-shadow-sm">{t.emoji}</span>
       </div>
       <div className="min-w-0">
-        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Step {t.num} of 4</p>
-        <h2 className="mt-0.5 text-3xl font-extrabold leading-tight">{t.title}</h2>
-        <p className="mt-1.5 text-base text-muted-foreground">{t.subtitle}</p>
+        <p className="xcel-kicker">Track 0{t.num} / 04</p>
+        <h2 className="mt-1 text-3xl leading-tight tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>{t.title}</h2>
+        <p className="mt-1.5 text-sm normal-case tracking-normal text-[#F5F2EC]/70">{t.subtitle}</p>
       </div>
     </div>
   );
@@ -549,11 +547,11 @@ function ContextSummary({ plan, show }: { plan: PlanRow; show: string[] }) {
     items.push({ label: "Your product", value: "Saved ✓" });
   if (!items.length) return null;
   return (
-    <div className="rounded-md border border-border bg-background/50 p-4">
-      <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">Using your saved answers</p>
-      <ul className="space-y-1 text-sm">
+    <div className="rounded-md border border-[#8A2BE2]/40 bg-[#8A2BE2]/5 p-4">
+      <p className="xcel-kicker mb-2 text-[#C8A4FF]">From your liner notes</p>
+      <ul className="space-y-1 text-sm text-[#F5F2EC]/80">
         {items.map((i) => (
-          <li key={i.label}><span className="font-semibold">{i.label}:</span> <span className="text-muted-foreground">{i.value.length > 100 ? i.value.slice(0, 100) + "…" : i.value}</span></li>
+          <li key={i.label}><span className="font-bold text-[#F5F2EC]">{i.label}:</span> <span className="text-[#F5F2EC]/70">{i.value.length > 100 ? i.value.slice(0, 100) + "…" : i.value}</span></li>
         ))}
       </ul>
     </div>
@@ -575,11 +573,13 @@ function Field({
   return (
     <div className="group">
       <label className="block">
-        <span className="block text-base font-bold text-foreground">{label}</span>
-        {hint && <span className="mt-1 block text-sm text-muted-foreground">{hint}</span>}
-        <div className={`relative mt-2.5 rounded-xl border-2 bg-white transition-all duration-200 ${
-          active ? "border-[oklch(0.62_0.27_348/0.5)] shadow-[0_0_0_4px_oklch(0.62_0.27_348/0.15)]" : "border-white/80 hover:border-white"
-        } focus-within:border-[oklch(0.62_0.27_348/0.7)] focus-within:shadow-[0_0_0_4px_oklch(0.62_0.27_348/0.20)]`}>
+        <span className="block text-base font-bold normal-case tracking-normal text-[#F5F2EC]" style={{ fontFamily: "var(--font-sub)" }}>{label}</span>
+        {hint && <span className="mt-1 block text-sm font-normal normal-case tracking-normal text-[#F5F2EC]/60">{hint}</span>}
+        <div className={`relative mt-2.5 rounded-xl border bg-black/50 transition-all duration-200 ${
+          active
+            ? "border-[#FE2DA3]/70 shadow-[0_0_0_3px_rgba(254,45,163,0.18),0_0_18px_rgba(254,45,163,0.35)]"
+            : "border-white/10 hover:border-[#00F0D1]/40"
+        } focus-within:border-[#FE2DA3] focus-within:shadow-[0_0_0_3px_rgba(254,45,163,0.22),0_0_24px_rgba(254,45,163,0.4)]`}>
           <textarea
             value={value}
             onChange={(e) => onChange(e.target.value)}
@@ -587,7 +587,7 @@ function Field({
             disabled={disabled}
             rows={3}
             maxLength={1000}
-            className="w-full resize-none rounded-xl bg-transparent px-4 py-3 text-base text-slate-900 placeholder:text-slate-400 focus-visible:outline-none disabled:opacity-60"
+            className="w-full resize-none rounded-xl bg-transparent px-4 py-3 text-base text-[#F5F2EC] placeholder:text-white/30 focus-visible:outline-none disabled:opacity-60"
           />
         </div>
       </label>
@@ -601,10 +601,10 @@ function Field({
                 type="button"
                 disabled={disabled}
                 onClick={() => onChange(chip)}
-                className={`xcel-pop rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 ${
+                className={`xcel-pop rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 ${
                   selected
-                    ? "border-transparent bg-[oklch(0.62_0.27_348)] text-white shadow-[0_4px_12px_-2px_oklch(0.62_0.27_348/0.5)]"
-                    : "border-border bg-background text-muted-foreground hover:border-[oklch(0.62_0.27_348/0.5)] hover:bg-[oklch(0.62_0.27_348/0.06)] hover:text-foreground"
+                    ? "border-[#FE2DA3] bg-[#FE2DA3] text-white shadow-[0_0_18px_rgba(254,45,163,0.55)]"
+                    : "border-white/15 bg-black/40 text-[#F5F2EC]/75 hover:border-[#00F0D1]/60 hover:bg-[#00F0D1]/10 hover:text-[#00F0D1]"
                 }`}
                 style={{ animationDelay: `${i * 0.04}s` }}
               >
