@@ -288,6 +288,64 @@ function ToolPanel({
   const [hoursPerDay, setHoursPerDay] = useState("");
   const [platformPreference, setPlatformPreference] = useState("");
 
+  // ===== Starting-point stepper (one card at a time) =====
+  const startingPointSteps = useMemo(() => ([
+    {
+      label: "What pro problem can you solve in your sleep?",
+      hint: "The thing people already come to you for. The thing you'd do half-asleep, no coffee.",
+      value: niche, set: setNiche, required: true,
+      placeholder: 'e.g. "Building marketing strategies, managing teams, creating systems..." — or "Honestly, not sure yet"',
+      chips: ["Honestly? Not sure yet","Meal planning & easy recipes","Helping women restart their careers","Decluttering & home organization","Faith + family life","Menopause wellness"],
+    },
+    {
+      label: "What transformation have YOU personally been through?",
+      hint: "Your story is the receipt. What did you walk through and come out the other side of?",
+      value: transformation, set: setTransformation, required: false,
+      placeholder: 'e.g. "Starting over at 50, building confidence, leaving corporate..."',
+      chips: ["Started over after 50","Left corporate, never looked back","Rebuilt my confidence post-divorce","Survived burnout","Empty nest, full reinvention"],
+    },
+    {
+      label: "Describe who you most want to help.",
+      hint: "Picture one real human. Age, life stage, what's on her plate.",
+      value: whoHelp, set: setWhoHelp, required: true,
+      placeholder: 'e.g. "A 50-year-old corporate professional ready to start consulting..."',
+      chips: ["Gen X woman, mid-career pivot","Empty-nester ready for act two","Corporate escapee, first-time consultant","Mom going back to work after years off","Recently divorced, rebuilding income"],
+    },
+    {
+      label: "What's her biggest frustration right now?",
+      hint: "The thing that keeps her up at 2am. Be specific — no fluff.",
+      value: theirFrustration, set: setTheirFrustration, required: true,
+      placeholder: 'e.g. "She knows she has expertise but doesn\u2019t know how to package it..."',
+      chips: ["Has the expertise, can't package it","Sick of being invisible at work","Stuck trading hours for dollars","Doesn't know where to even start","Tech makes her freeze up"],
+    },
+    {
+      label: "What does she desperately want to achieve?",
+      hint: "The thing she'd pay almost anything to make real.",
+      value: theirDream, set: setTheirDream, required: true,
+      placeholder: 'e.g. "Financial independence, recognition for her expertise, freedom to work from anywhere..."',
+      chips: ["Financial independence","Recognition for her expertise","Freedom to work from anywhere","An income that doesn't need her boss","Time back with her people"],
+    },
+    {
+      label: "What's the thing that keeps tripping you up?",
+      hint: "Be real — this is where most people quit.",
+      value: roadblock, set: setRoadblock, required: true,
+      placeholder: "e.g. I keep changing my mind every week",
+      chips: ["I keep changing my niche","Tech overwhelms me","I feel like I'm too late","I don't know what to sell","Scared nobody will care"],
+    },
+    {
+      label: "What does a normal day look like for you?",
+      hint: "So we don't build a plan you can't actually do.",
+      value: day, set: setDay, required: true,
+      placeholder: 'e.g. "1 hour after the kids are in bed"',
+      chips: ["30 mins early morning","1-2 hours after kids/work","Weekends mostly","I homeschool — it's chaos","I work full-time"],
+    },
+  ]), [niche, transformation, whoHelp, theirFrustration, theirDream, roadblock, day]);
+
+  const [spStep, setSpStep] = useState(0);
+  const isLastStep = spStep === startingPointSteps.length - 1;
+  const currentStep = startingPointSteps[spStep];
+  const canAdvance = !currentStep.required || currentStep.value.trim().length > 0;
+
   const prerequisite = useMemo(() => {
     if (tool === "product")    return plan?.starting_point_output ? null : "Finish Step 1 (Starting Point) first so we know your niche.";
     if (tool === "storefront") return plan?.product_output        ? null : "Finish Step 2 (Product Builder) first so we know what you're selling.";
