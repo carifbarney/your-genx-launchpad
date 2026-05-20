@@ -139,10 +139,23 @@ function Dashboard() {
                 {completedCount === 0 ? "Side A — Track 1" : completedCount === 4 ? "Album complete — go gold" : `${completedCount} of 4 in the can`}
               </span>
             </div>
-            <h1 className="text-5xl leading-[0.95] sm:text-6xl">
-              <span className="xcel-neon-pink xcel-neon-pulse font-bold">All gas.</span>
-              <br />
-              <span className="xcel-neon-pink xcel-neon-pulse">No brakes.</span>
+            <h1 className="relative inline-block">
+              <span className="sr-only">Xcelerate Ignition Lab</span>
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 -z-0 rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(closest-side, rgba(254,45,163,0.55), rgba(138,43,226,0.35) 45%, rgba(0,240,209,0.22) 72%, transparent 82%)",
+                  filter: "blur(32px)",
+                  transform: "scale(1.2)",
+                }}
+              />
+              <img
+                src={xcelerateLogo}
+                alt="Xcelerate Ignition Lab"
+                className="relative h-28 w-auto sm:h-36 md:h-44 drop-shadow-[0_0_22px_rgba(254,45,163,0.7)]"
+              />
             </h1>
             <p className="mt-4 max-w-md font-sans text-base normal-case tracking-normal text-[#F5F2EC]/75">
               Four tracks. No filler. You walk out tonight with something real.
