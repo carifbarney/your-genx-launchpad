@@ -33,14 +33,15 @@ const PROMPTS = {
   starting_point: `${BASE_VOICE}
 
 TOOL: STARTING POINT
-The user is figuring out where to begin. Give them one clear path forward.
+The user has just done an EXPERTISE EXCAVATION — she's told you what she's the go-to person for, a transformation she's lived through, who she most wants to help, what frustrates them, and what they desperately want. Your job is to mirror that back so she sees the goldmine she's sitting on, then give her ONE clear path forward built on her actual expertise — not a generic niche template.
 
 REQUIRED SECTIONS (use these exact bold headers, in order):
-**Here Is Where You Are** — 2-3 sentences reflecting what they described so they feel seen.
-**Your Starting Point** — the single clearest answer to where they begin. If their niche is unclear, narrow it using: who do you help, what problem do you solve, why does that person trust you specifically.
+**Here Is Where You Are** — 2-3 sentences reflecting what she described so she feels seen. Reference her specific expertise AND her transformation — show her you heard both.
+**Your Niche, Crystallized** — one short paragraph stating the niche in one sentence using this exact pattern: "You help [WHO — pulled from her answer] who are [THEIR FRUSTRATION] get to [THEIR DREAM] using [HER EXPERTISE / TRANSFORMATION]." Then 2 sentences on why this niche is hers to own.
+**Your Starting Point** — the single clearest answer to where she begins. One named direction, not a list of options.
 **Steps 1 Through 3** — three numbered next actions. Each named, each 1-2 sentences on what it involves and why it comes first.
-**Why Your Experience Is The Advantage** — one paragraph reframing their age/life experience as a competitive asset, specific to what they shared.
-**Your Next Move** — one bold sentence. One action they can do today.`,
+**Why Your Experience Is The Advantage** — one paragraph reframing her age, career, and lived transformation as a competitive moat. Be specific — name what she said.
+**Your Next Move** — one bold sentence. One action she can do today.`,
 
   product: `${BASE_VOICE}
 
@@ -90,6 +91,10 @@ const startingPointSchema = z.object({
   niche: z.string().trim().min(1).max(1000),
   roadblock: z.string().trim().min(1).max(1000),
   day: z.string().trim().min(1).max(1000),
+  transformation: z.string().trim().max(1500).default(""),
+  whoHelp: z.string().trim().max(1500).default(""),
+  theirFrustration: z.string().trim().max(1500).default(""),
+  theirDream: z.string().trim().max(1500).default(""),
 });
 
 const productSchema = z.object({
@@ -159,10 +164,22 @@ function buildUserMessage(input: z.infer<typeof inputSchema>, plan: Record<strin
 
   if (input.tool === "starting_point") {
     parts.push(`Your Niche or Topic Idea:\n${input.niche}`);
+    if (input.transformation) parts.push(`A Transformation You've Personally Been Through:\n${input.transformation}`);
+    if (input.whoHelp)        parts.push(`Who You Most Want To Help:\n${input.whoHelp}`);
+    if (input.theirFrustration) parts.push(`Their Biggest Frustration Right Now:\n${input.theirFrustration}`);
+    if (input.theirDream)     parts.push(`What They Desperately Want To Achieve:\n${input.theirDream}`);
     parts.push(`Your Biggest Roadblock Right Now:\n${input.roadblock}`);
     parts.push(`What Does Your Day Look Like?:\n${input.day}`);
   } else if (input.tool === "product") {
     if (niche) parts.push(`Their Niche:\n${niche}`);
+    const transformation = (plan?.transformation as string) || "";
+    const whoHelp = (plan?.who_help as string) || "";
+    const theirFrustration = (plan?.their_frustration as string) || "";
+    const theirDream = (plan?.their_dream as string) || "";
+    if (transformation)    parts.push(`Their Personal Transformation Story:\n${transformation}`);
+    if (whoHelp)           parts.push(`Who They Want To Help:\n${whoHelp}`);
+    if (theirFrustration)  parts.push(`That Audience's Biggest Frustration:\n${theirFrustration}`);
+    if (theirDream)        parts.push(`That Audience's Deepest Desire:\n${theirDream}`);
     if (roadblock) parts.push(`Their Roadblock:\n${roadblock}`);
     if (day) parts.push(`Their Daily Reality:\n${day}`);
     if (startingPoint) parts.push(`Their Starting Point Plan (already given):\n${startingPoint}`);
@@ -207,7 +224,13 @@ export const generateXcelerateResponse = createServerFn({ method: "POST" })
     // If starting point, save niche/roadblock/day immediately
     if (data.tool === "starting_point") {
       await upsertPlan(context.userId, {
-        niche: data.niche, roadblock: data.roadblock, day: data.day,
+        niche: data.niche,
+        roadblock: data.roadblock,
+        day: data.day,
+        transformation: data.transformation || null,
+        who_help: data.whoHelp || null,
+        their_frustration: data.theirFrustration || null,
+        their_dream: data.theirDream || null,
       });
     }
 

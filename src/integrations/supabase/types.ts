@@ -52,8 +52,12 @@ export type Database = {
           roadblock: string | null
           starting_point_output: string | null
           storefront_output: string | null
+          their_dream: string | null
+          their_frustration: string | null
+          transformation: string | null
           updated_at: string
           user_id: string
+          who_help: string | null
         }
         Insert: {
           created_at?: string
@@ -65,8 +69,12 @@ export type Database = {
           roadblock?: string | null
           starting_point_output?: string | null
           storefront_output?: string | null
+          their_dream?: string | null
+          their_frustration?: string | null
+          transformation?: string | null
           updated_at?: string
           user_id: string
+          who_help?: string | null
         }
         Update: {
           created_at?: string
@@ -78,8 +86,12 @@ export type Database = {
           roadblock?: string | null
           starting_point_output?: string | null
           storefront_output?: string | null
+          their_dream?: string | null
+          their_frustration?: string | null
+          transformation?: string | null
           updated_at?: string
           user_id?: string
+          who_help?: string | null
         }
         Relationships: []
       }

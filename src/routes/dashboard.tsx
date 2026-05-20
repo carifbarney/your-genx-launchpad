@@ -43,6 +43,8 @@ const NEXT_TOOL: Partial<Record<ToolKey, ToolKey>> = {
 
 type PlanRow = {
   niche: string | null; roadblock: string | null; day: string | null;
+  transformation: string | null; who_help: string | null;
+  their_frustration: string | null; their_dream: string | null;
   starting_point_output: string | null; product_output: string | null;
   storefront_output: string | null; launch_plan_output: string | null;
 } | null;
@@ -260,6 +262,11 @@ function ToolPanel({
   const [niche, setNiche] = useState(plan?.niche ?? "");
   const [roadblock, setRoadblock] = useState(plan?.roadblock ?? "");
   const [day, setDay] = useState(plan?.day ?? "");
+  // expertise excavation (Stage 1 of starting point)
+  const [transformation, setTransformation] = useState(plan?.transformation ?? "");
+  const [whoHelp, setWhoHelp] = useState(plan?.who_help ?? "");
+  const [theirFrustration, setTheirFrustration] = useState(plan?.their_frustration ?? "");
+  const [theirDream, setTheirDream] = useState(plan?.their_dream ?? "");
   // product
   const [productNotes, setProductNotes] = useState("");
   // storefront
@@ -280,14 +287,17 @@ function ToolPanel({
     if (streaming || disabled) return;
 
     type GenInput =
-      | { tool: "starting_point"; niche: string; roadblock: string; day: string }
+      | { tool: "starting_point"; niche: string; roadblock: string; day: string; transformation: string; whoHelp: string; theirFrustration: string; theirDream: string }
       | { tool: "product"; productNotes: string }
       | { tool: "storefront"; storefrontNotes: string }
       | { tool: "launch_plan"; hoursPerDay: string; platformPreference: string };
     let payload: GenInput;
     if (tool === "starting_point") {
-      if (!niche.trim() || !roadblock.trim() || !day.trim()) { setErrorMsg("Please fill in all three fields."); return; }
-      payload = { tool: "starting_point", niche, roadblock, day };
+      if (!niche.trim() || !whoHelp.trim() || !theirFrustration.trim() || !theirDream.trim() || !roadblock.trim() || !day.trim()) {
+        setErrorMsg("Fill in the starred fields so we can dig in. Transformation is optional.");
+        return;
+      }
+      payload = { tool: "starting_point", niche, roadblock, day, transformation, whoHelp, theirFrustration, theirDream };
     } else if (tool === "product") {
       payload = { tool: "product", productNotes };
     } else if (tool === "storefront") {
@@ -336,11 +346,38 @@ function ToolPanel({
         <form onSubmit={handleSubmit} className="mt-6 space-y-5">
           {tool === "starting_point" && (
             <>
+              {/* Stage 1 header — Expertise Excavation */}
+              <div className="relative -mx-2 mb-2 rounded-2xl border border-[#FE2DA3]/40 bg-black/60 px-5 py-5 shadow-[0_0_24px_rgba(254,45,163,0.18)] sm:-mx-0">
+                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#00F0D1]/90">Stage 01 — Expertise Excavation</p>
+                <h3
+                  className="mt-1 text-3xl leading-none sm:text-4xl"
+                  style={{
+                    fontFamily: "Anton, sans-serif",
+                    textTransform: "uppercase",
+                    color: "#FE2DA3",
+                    textShadow: "0 0 10px rgba(254,45,163,0.85), 0 0 22px rgba(254,45,163,0.55), 0 0 40px rgba(254,45,163,0.35)",
+                    letterSpacing: "0.02em",
+                  }}
+                >
+                  What's Your Goldmine?
+                </h3>
+                <p
+                  className="mt-2 text-sm sm:text-base"
+                  style={{
+                    fontFamily: "var(--font-sub)",
+                    color: "#00F0D1",
+                    textShadow: "0 0 8px rgba(0,240,209,0.45)",
+                  }}
+                >
+                  You know more than you think. Let's dig it out.
+                </p>
+              </div>
+
               <Field
-                label="What are you the go-to person for?"
-                hint="Don't overthink it. What do friends ask you about?"
+                label="What pro problem can you solve in your sleep?"
+                hint="The thing people already come to you for. The thing you'd do half-asleep, no coffee."
                 value={niche} onChange={setNiche} disabled={streaming}
-                placeholder={'e.g. "meal planning for busy moms" — or type "not sure yet" and we will figure it out'}
+                placeholder={'e.g. "Building marketing strategies, managing teams, creating systems..." — or "Honestly, not sure yet"'}
                 chips={[
                   "Honestly? Not sure yet",
                   "Meal planning & easy recipes",
@@ -348,6 +385,58 @@ function ToolPanel({
                   "Decluttering & home organization",
                   "Faith + family life",
                   "Menopause wellness",
+                ]}
+              />
+              <Field
+                label="What transformation have YOU personally been through?"
+                hint="Your story is the receipt. What did you walk through and come out the other side of?"
+                value={transformation} onChange={setTransformation} disabled={streaming}
+                placeholder={'e.g. "Starting over at 50, building confidence, leaving corporate..."'}
+                chips={[
+                  "Started over after 50",
+                  "Left corporate, never looked back",
+                  "Rebuilt my confidence post-divorce",
+                  "Survived burnout",
+                  "Empty nest, full reinvention",
+                ]}
+              />
+              <Field
+                label="Describe who you most want to help."
+                hint="Picture one real human. Age, life stage, what's on her plate."
+                value={whoHelp} onChange={setWhoHelp} disabled={streaming}
+                placeholder={'e.g. "A 50-year-old corporate professional ready to start consulting..."'}
+                chips={[
+                  "Gen X woman, mid-career pivot",
+                  "Empty-nester ready for act two",
+                  "Corporate escapee, first-time consultant",
+                  "Mom going back to work after years off",
+                  "Recently divorced, rebuilding income",
+                ]}
+              />
+              <Field
+                label="What's her biggest frustration right now?"
+                hint="The thing that keeps her up at 2am. Be specific — no fluff."
+                value={theirFrustration} onChange={setTheirFrustration} disabled={streaming}
+                placeholder={'e.g. "She knows she has expertise but doesn\u2019t know how to package it..."'}
+                chips={[
+                  "Has the expertise, can't package it",
+                  "Sick of being invisible at work",
+                  "Stuck trading hours for dollars",
+                  "Doesn't know where to even start",
+                  "Tech makes her freeze up",
+                ]}
+              />
+              <Field
+                label="What does she desperately want to achieve?"
+                hint="The thing she'd pay almost anything to make real."
+                value={theirDream} onChange={setTheirDream} disabled={streaming}
+                placeholder={'e.g. "Financial independence, recognition for her expertise, freedom to work from anywhere..."'}
+                chips={[
+                  "Financial independence",
+                  "Recognition for her expertise",
+                  "Freedom to work from anywhere",
+                  "An income that doesn't need her boss",
+                  "Time back with her people",
                 ]}
               />
               <Field
@@ -459,7 +548,15 @@ function ToolPanel({
           <button type="submit" disabled={streaming || disabled}
             className="xcel-btn-neon group relative w-full overflow-hidden rounded-xl px-6 py-4 text-base disabled:cursor-not-allowed disabled:opacity-60">
             <span className="relative z-10">
-              {streaming ? "⚡ Recording…" : disabled ? "🚫 Out of runs for today" : output ? "↺ Run it again" : "⚡ Drop the needle"}
+              {streaming
+                ? "⚡ Recording…"
+                : disabled
+                  ? "🚫 Out of runs for today"
+                  : output
+                    ? "↺ Run it again"
+                    : tool === "starting_point"
+                      ? "DIG DEEPER →"
+                      : "⚡ Drop the needle"}
             </span>
             {!streaming && (
               <span aria-hidden className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
