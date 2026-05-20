@@ -667,15 +667,16 @@ function OutputCards({ output, streaming }: { output: string; streaming: boolean
   return (
     <div>
       <div className="mb-3 flex items-center justify-between text-sm font-semibold text-muted-foreground">
-        <span>Card {safeIdx + 1} of {total}</span>
-        <span className="hidden sm:inline">Tap the arrows or dots to flip through</span>
+        <span className="xcel-kicker text-[#00F0D1]">Side {safeIdx + 1} of {total}</span>
+        <span className="hidden font-mono text-[10px] uppercase tracking-widest text-[#F5F2EC]/50 sm:inline">◀ ▶ flip through the tracks</span>
       </div>
       <div
         key={safeIdx}
-        className="rounded-2xl border-2 border-[oklch(0.62_0.27_348/0.25)] bg-white p-6 text-slate-900 shadow-sm xcel-fade-up sm:p-8"
+        className="rounded-2xl border-2 border-[#FE2DA3]/30 p-6 text-slate-900 shadow-[0_0_24px_rgba(254,45,163,0.20)] xcel-fade-up sm:p-8"
+        style={{ background: "#F5F2EC" }}
       >
         {current.title && (
-          <h3 className="mb-4 text-2xl font-extrabold leading-tight text-slate-900">
+          <h3 className="mb-4 text-2xl leading-tight tracking-wide text-slate-900" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>
             {current.title}
           </h3>
         )}
@@ -689,9 +690,9 @@ function OutputCards({ output, streaming }: { output: string; streaming: boolean
             type="button"
             onClick={() => setIdx((i) => Math.max(0, i - 1))}
             disabled={safeIdx === 0}
-            className="inline-flex items-center gap-2 rounded-full border-2 border-border bg-card px-5 py-2.5 text-base font-bold transition hover:-translate-y-0.5 hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+            className="xcel-btn-ghost inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
           >
-            ← Back
+            ◀ Rewind
           </button>
           <div className="flex flex-wrap items-center justify-center gap-2">
             {sections.map((_, i) => (
@@ -701,7 +702,7 @@ function OutputCards({ output, streaming }: { output: string; streaming: boolean
                 aria-label={`Go to card ${i + 1}`}
                 onClick={() => setIdx(i)}
                 className={`h-2.5 rounded-full transition-all ${
-                  i === safeIdx ? "w-8 bg-[oklch(0.62_0.27_348)]" : "w-2.5 bg-border hover:bg-muted-foreground/50"
+                  i === safeIdx ? "w-8 bg-[#FE2DA3] shadow-[0_0_8px_#FE2DA3]" : "w-2.5 bg-white/15 hover:bg-[#00F0D1]/60"
                 }`}
               />
             ))}
@@ -710,9 +711,9 @@ function OutputCards({ output, streaming }: { output: string; streaming: boolean
             type="button"
             onClick={() => setIdx((i) => Math.min(total - 1, i + 1))}
             disabled={safeIdx === total - 1}
-            className="inline-flex items-center gap-2 rounded-full border-2 border-border bg-card px-5 py-2.5 text-base font-bold transition hover:-translate-y-0.5 hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+            className="xcel-btn-ghost inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
           >
-            Next →
+            Fast forward ▶
           </button>
         </div>
       )}
