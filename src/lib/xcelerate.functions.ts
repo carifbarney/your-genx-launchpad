@@ -90,6 +90,10 @@ const startingPointSchema = z.object({
   niche: z.string().trim().min(1).max(1000),
   roadblock: z.string().trim().min(1).max(1000),
   day: z.string().trim().min(1).max(1000),
+  transformation: z.string().trim().max(1500).default(""),
+  whoHelp: z.string().trim().max(1500).default(""),
+  theirFrustration: z.string().trim().max(1500).default(""),
+  theirDream: z.string().trim().max(1500).default(""),
 });
 
 const productSchema = z.object({
@@ -159,10 +163,22 @@ function buildUserMessage(input: z.infer<typeof inputSchema>, plan: Record<strin
 
   if (input.tool === "starting_point") {
     parts.push(`Your Niche or Topic Idea:\n${input.niche}`);
+    if (input.transformation) parts.push(`A Transformation You've Personally Been Through:\n${input.transformation}`);
+    if (input.whoHelp)        parts.push(`Who You Most Want To Help:\n${input.whoHelp}`);
+    if (input.theirFrustration) parts.push(`Their Biggest Frustration Right Now:\n${input.theirFrustration}`);
+    if (input.theirDream)     parts.push(`What They Desperately Want To Achieve:\n${input.theirDream}`);
     parts.push(`Your Biggest Roadblock Right Now:\n${input.roadblock}`);
     parts.push(`What Does Your Day Look Like?:\n${input.day}`);
   } else if (input.tool === "product") {
     if (niche) parts.push(`Their Niche:\n${niche}`);
+    const transformation = (plan?.transformation as string) || "";
+    const whoHelp = (plan?.who_help as string) || "";
+    const theirFrustration = (plan?.their_frustration as string) || "";
+    const theirDream = (plan?.their_dream as string) || "";
+    if (transformation)    parts.push(`Their Personal Transformation Story:\n${transformation}`);
+    if (whoHelp)           parts.push(`Who They Want To Help:\n${whoHelp}`);
+    if (theirFrustration)  parts.push(`That Audience's Biggest Frustration:\n${theirFrustration}`);
+    if (theirDream)        parts.push(`That Audience's Deepest Desire:\n${theirDream}`);
     if (roadblock) parts.push(`Their Roadblock:\n${roadblock}`);
     if (day) parts.push(`Their Daily Reality:\n${day}`);
     if (startingPoint) parts.push(`Their Starting Point Plan (already given):\n${startingPoint}`);
@@ -207,7 +223,13 @@ export const generateXcelerateResponse = createServerFn({ method: "POST" })
     // If starting point, save niche/roadblock/day immediately
     if (data.tool === "starting_point") {
       await upsertPlan(context.userId, {
-        niche: data.niche, roadblock: data.roadblock, day: data.day,
+        niche: data.niche,
+        roadblock: data.roadblock,
+        day: data.day,
+        transformation: data.transformation || null,
+        who_help: data.whoHelp || null,
+        their_frustration: data.theirFrustration || null,
+        their_dream: data.theirDream || null,
       });
     }
 
