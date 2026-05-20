@@ -645,7 +645,16 @@ function ToolPanel({
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#FE2DA3] shadow-[0_0_6px_#FE2DA3]" /> ● REC — live
                 </div>
               )}
-              <OutputCards output={output} streaming={streaming} />
+              {tool === "starting_point" ? (
+                <BlueprintCard
+                  output={output}
+                  streaming={streaming}
+                  plan={plan}
+                  onAdvance={() => onAdvance("product")}
+                />
+              ) : (
+                <OutputCards output={output} streaming={streaming} />
+              )}
               {!streaming && tool === "product" && (
                 <BuildItWithAI output={output} plan={plan} />
               )}
@@ -655,7 +664,7 @@ function ToolPanel({
               {!streaming && tool === "launch_plan" && (
                 <LaunchCalendar output={output} />
               )}
-              {!streaming && (
+              {!streaming && tool !== "starting_point" && (
                 <div className="mt-6 flex flex-wrap items-center gap-3">
                   <button onClick={handleCopy} className="xcel-btn-ghost inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs">
                     {copied ? "✓ Copied!" : "📋 Copy"}
