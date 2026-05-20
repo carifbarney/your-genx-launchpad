@@ -894,6 +894,7 @@ function BlueprintCard({
 
     // Brand palette (printer-friendly: mostly white page, color used in accents)
     const PINK: [number, number, number] = [254, 45, 163];
+    const BLACK: [number, number, number] = [10, 10, 12];
     const PURPLE: [number, number, number] = [138, 43, 226];
     const TEAL: [number, number, number] = [0, 176, 156];
     const INK: [number, number, number] = [24, 24, 28];
@@ -903,12 +904,14 @@ function BlueprintCard({
 
     let y = contentTop;
     let page = 1;
+    // Inset used by writeRich so content inside section cards has padding
+    let contentInset = 0;
 
     const drawPageChrome = () => {
-      // Top band: thick pink + thin purple + teal underline
-      doc.setFillColor(...PINK);
+      // Top band: black header with pink + teal accent underline
+      doc.setFillColor(...BLACK);
       doc.rect(0, 0, pageW, headerH, "F");
-      doc.setFillColor(...PURPLE);
+      doc.setFillColor(...PINK);
       doc.rect(0, headerH, pageW, 6, "F");
       doc.setFillColor(...TEAL);
       doc.rect(0, headerH + 6, pageW, 2, "F");
@@ -978,7 +981,8 @@ function BlueprintCard({
         else tokens.push({ text: part, bold: false });
       }
       // Layout word-by-word
-      const lineStart = margin + indent;
+      const lineStart = margin + contentInset + indent;
+      const lineEnd = pageW - margin - contentInset;
       let cursorX = lineStart;
       ensureSpace(lineH);
       const space = () => { doc.setFont("helvetica", "normal"); return doc.getTextWidth(" "); };
@@ -994,7 +998,7 @@ function BlueprintCard({
             continue;
           }
           const wWidth = doc.getTextWidth(w);
-          if (cursorX + wWidth > pageW - margin) flushNewLine();
+          if (cursorX + wWidth > lineEnd) flushNewLine();
           doc.text(w, cursorX, y);
           cursorX += wWidth;
         }
@@ -1065,31 +1069,79 @@ function BlueprintCard({
       y += boxH + 26;
     }
 
-    // ===== Sections =====
-    for (const s of sections) {
+    // ===== Sections (rendered as rounded card boxes) =====
+    const CARD_PAD_X = 20;
+    const CARD_PAD_Y = 20;
+    const CARD_RADIUS = 10;
+
+    // Estimate height of a section so we can draw the card behind it.
+    const measureSection = (s: { title: string; body: string }): number => {
+      let h = CARD_PAD_Y;
+      const innerW = maxW - CARD_PAD_X * 2;
       if (s.title) {
-        ensureSpace(58);
-        // Pink track tag + title
+        h += 14; // tag line
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(15);
+        const titleLines = doc.splitTextToSize(s.title.toUpperCase(), innerW) as string[];
+        h += titleLines.length * 22;
+        h += 18; // underline accent gap
+      }
+      const paragraphs = s.body.trim().split(/\n\s*\n/);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(BODY_SIZE);
+      paragraphs.forEach((p, i) => {
+        const clean = p.replace(/\n/g, " ").trim();
+        if (!clean) return;
+        const bullet = clean.match(/^\s*[-*]\s+(.*)$/);
+        const text = (bullet ? bullet[1] : clean).replace(/\*\*/g, "");
+        const indent = bullet ? 16 : 0;
+        const lines = doc.splitTextToSize(text, innerW - indent) as string[];
+        h += lines.length * BODY_LINE_H;
+        h += i === paragraphs.length - 1 ? 0 : (bullet ? PARA_GAP - 2 : PARA_GAP);
+      });
+      h += CARD_PAD_Y;
+      return h;
+    };
+
+    for (const s of sections) {
+      const cardH = measureSection(s);
+      // Move whole card to next page if it doesn't fit; allow page-spanning if larger than page.
+      const available = contentBottom - y;
+      if (cardH > available && cardH <= contentBottom - contentTop) newPage();
+
+      const cardTop = y;
+      // Draw card chrome (rounded rect + subtle border + pink left accent)
+      doc.setFillColor(255, 255, 255);
+      doc.setDrawColor(225, 225, 230);
+      doc.setLineWidth(0.75);
+      doc.roundedRect(margin, cardTop, maxW, Math.min(cardH, contentBottom - cardTop), CARD_RADIUS, CARD_RADIUS, "FD");
+      doc.setFillColor(...PINK);
+      // Pink left accent bar inset slightly so it follows the rounded corner
+      doc.rect(margin + 1, cardTop + CARD_RADIUS, 3, Math.min(cardH, contentBottom - cardTop) - CARD_RADIUS * 2, "F");
+
+      // Content inset for writeRich
+      contentInset = CARD_PAD_X;
+      y = cardTop + CARD_PAD_Y;
+
+      if (s.title) {
         const tag = "▮ SECTION";
         doc.setFont("helvetica", "bold");
         doc.setFontSize(8);
         doc.setTextColor(...TEAL);
-        doc.text(tag, margin, y);
+        doc.text(tag, margin + CARD_PAD_X, y);
         y += 14;
 
         doc.setFont("helvetica", "bold");
         doc.setFontSize(15);
         doc.setTextColor(...PINK);
-        const titleLines = doc.splitTextToSize(s.title.toUpperCase(), maxW) as string[];
+        const titleLines = doc.splitTextToSize(s.title.toUpperCase(), maxW - CARD_PAD_X * 2) as string[];
         for (const tl of titleLines) {
-          ensureSpace(22);
-          doc.text(tl, margin, y);
+          doc.text(tl, margin + CARD_PAD_X, y);
           y += 22;
         }
-        // Short purple underline accent
         doc.setDrawColor(...PURPLE);
         doc.setLineWidth(1.5);
-        doc.line(margin, y, margin + 48, y);
+        doc.line(margin + CARD_PAD_X, y, margin + CARD_PAD_X + 48, y);
         y += 18;
       }
 
@@ -1098,20 +1150,26 @@ function BlueprintCard({
       for (const p of paragraphs) {
         const clean = p.replace(/\n/g, " ").trim();
         if (!clean) continue;
-        // Bullet handling
         const bullet = clean.match(/^\s*[-*]\s+(.*)$/);
         if (bullet) {
           ensureSpace(BODY_LINE_H);
           doc.setFont("helvetica", "bold");
           doc.setFontSize(BODY_SIZE);
           doc.setTextColor(...PINK);
-          doc.text("•", margin, y);
+          doc.text("•", margin + CARD_PAD_X, y);
           writeRich(bullet[1], BODY_SIZE, BODY, PARA_GAP - 2, 16);
         } else {
           writeRich(clean, BODY_SIZE, BODY, PARA_GAP);
         }
       }
-      y += SECTION_GAP - PARA_GAP;
+
+      contentInset = 0;
+      // Position y below the card with a gap before next section
+      y = cardTop + cardH + 18;
+      if (y > contentBottom) {
+        // ran past — start fresh page
+        newPage();
+      }
     }
 
     doc.save("xcelerate-blueprint.pdf");
