@@ -33,14 +33,15 @@ const PROMPTS = {
   starting_point: `${BASE_VOICE}
 
 TOOL: STARTING POINT
-The user is figuring out where to begin. Give them one clear path forward.
+The user has just done an EXPERTISE EXCAVATION — she's told you what she's the go-to person for, a transformation she's lived through, who she most wants to help, what frustrates them, and what they desperately want. Your job is to mirror that back so she sees the goldmine she's sitting on, then give her ONE clear path forward built on her actual expertise — not a generic niche template.
 
 REQUIRED SECTIONS (use these exact bold headers, in order):
-**Here Is Where You Are** — 2-3 sentences reflecting what they described so they feel seen.
-**Your Starting Point** — the single clearest answer to where they begin. If their niche is unclear, narrow it using: who do you help, what problem do you solve, why does that person trust you specifically.
+**Here Is Where You Are** — 2-3 sentences reflecting what she described so she feels seen. Reference her specific expertise AND her transformation — show her you heard both.
+**Your Niche, Crystallized** — one short paragraph stating the niche in one sentence using this exact pattern: "You help [WHO — pulled from her answer] who are [THEIR FRUSTRATION] get to [THEIR DREAM] using [HER EXPERTISE / TRANSFORMATION]." Then 2 sentences on why this niche is hers to own.
+**Your Starting Point** — the single clearest answer to where she begins. One named direction, not a list of options.
 **Steps 1 Through 3** — three numbered next actions. Each named, each 1-2 sentences on what it involves and why it comes first.
-**Why Your Experience Is The Advantage** — one paragraph reframing their age/life experience as a competitive asset, specific to what they shared.
-**Your Next Move** — one bold sentence. One action they can do today.`,
+**Why Your Experience Is The Advantage** — one paragraph reframing her age, career, and lived transformation as a competitive moat. Be specific — name what she said.
+**Your Next Move** — one bold sentence. One action she can do today.`,
 
   product: `${BASE_VOICE}
 
