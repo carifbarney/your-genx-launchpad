@@ -285,14 +285,17 @@ function ToolPanel({
     if (streaming || disabled) return;
 
     type GenInput =
-      | { tool: "starting_point"; niche: string; roadblock: string; day: string }
+      | { tool: "starting_point"; niche: string; roadblock: string; day: string; transformation: string; whoHelp: string; theirFrustration: string; theirDream: string }
       | { tool: "product"; productNotes: string }
       | { tool: "storefront"; storefrontNotes: string }
       | { tool: "launch_plan"; hoursPerDay: string; platformPreference: string };
     let payload: GenInput;
     if (tool === "starting_point") {
-      if (!niche.trim() || !roadblock.trim() || !day.trim()) { setErrorMsg("Please fill in all three fields."); return; }
-      payload = { tool: "starting_point", niche, roadblock, day };
+      if (!niche.trim() || !whoHelp.trim() || !theirFrustration.trim() || !theirDream.trim() || !roadblock.trim() || !day.trim()) {
+        setErrorMsg("Fill in the starred fields so we can dig in. Transformation is optional.");
+        return;
+      }
+      payload = { tool: "starting_point", niche, roadblock, day, transformation, whoHelp, theirFrustration, theirDream };
     } else if (tool === "product") {
       payload = { tool: "product", productNotes };
     } else if (tool === "storefront") {
