@@ -79,11 +79,24 @@ function LoginPage() {
       </div>
       <div className="xcel-card xcel-scanlines relative w-full max-w-md p-8">
         <div className="text-center">
-          <Link to="/" className="inline-block">
-            <img src={xcelerateLogo} alt="Xcelerate" className="mx-auto h-14 w-auto drop-shadow-[0_0_14px_rgba(254,45,163,0.6)]" />
+          <Link to="/" className="relative inline-block">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 -z-0 rounded-full"
+              style={{
+                background:
+                  "radial-gradient(closest-side, rgba(254,45,163,0.55), rgba(138,43,226,0.35) 45%, rgba(0,240,209,0.25) 70%, transparent 80%)",
+                filter: "blur(28px)",
+                transform: "scale(1.25)",
+              }}
+            />
+            <img
+              src={xcelerateLogo}
+              alt="Xcelerate Ignition Lab"
+              className="relative mx-auto h-40 w-auto sm:h-48 md:h-56 drop-shadow-[0_0_24px_rgba(254,45,163,0.7)]"
+            />
           </Link>
-          <p className="xcel-kicker mt-5 text-[#00F0D1]">All gas — no brakes</p>
-          <h1 className="mt-2 text-3xl tracking-wide xcel-neon-pink" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>
+          <h1 className="mt-6 text-3xl tracking-wide xcel-neon-pink" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>
             {mode === "login" ? "Welcome back" : "Get on the list"}
           </h1>
           <p className="mt-2 text-sm normal-case tracking-normal text-[#F5F2EC]/70">

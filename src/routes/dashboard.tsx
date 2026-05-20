@@ -139,10 +139,23 @@ function Dashboard() {
                 {completedCount === 0 ? "Side A — Track 1" : completedCount === 4 ? "Album complete — go gold" : `${completedCount} of 4 in the can`}
               </span>
             </div>
-            <h1 className="text-5xl leading-[0.95] sm:text-6xl">
-              <span className="xcel-neon-pink xcel-neon-pulse font-bold">All gas.</span>
-              <br />
-              <span className="xcel-neon-pink xcel-neon-pulse">No brakes.</span>
+            <h1 className="relative inline-block">
+              <span className="sr-only">Xcelerate Ignition Lab</span>
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 -z-0 rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(closest-side, rgba(254,45,163,0.55), rgba(138,43,226,0.35) 45%, rgba(0,240,209,0.22) 72%, transparent 82%)",
+                  filter: "blur(32px)",
+                  transform: "scale(1.2)",
+                }}
+              />
+              <img
+                src={xcelerateLogo}
+                alt="Xcelerate Ignition Lab"
+                className="relative h-28 w-auto sm:h-36 md:h-44 drop-shadow-[0_0_22px_rgba(254,45,163,0.7)]"
+              />
             </h1>
             <p className="mt-4 max-w-md font-sans text-base normal-case tracking-normal text-[#F5F2EC]/75">
               Four tracks. No filler. You walk out tonight with something real.
@@ -679,7 +692,23 @@ function Field({
 }) {
   const active = value.trim().length > 0;
   return (
-    <div className="group">
+    <div
+      className={`group relative rounded-2xl border bg-black/60 p-5 backdrop-blur-sm transition-all duration-300 ${
+        active
+          ? "border-[#00F0D1]/60 shadow-[0_0_28px_rgba(0,240,209,0.30),inset_0_0_22px_rgba(0,240,209,0.10)]"
+          : "border-[#FE2DA3]/35 shadow-[0_0_22px_rgba(254,45,163,0.22),inset_0_0_18px_rgba(254,45,163,0.06)] hover:border-[#FE2DA3]/55 hover:shadow-[0_0_30px_rgba(254,45,163,0.32),inset_0_0_22px_rgba(254,45,163,0.08)]"
+      }`}
+    >
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-[2px] rounded-t-2xl"
+        style={{
+          background: active
+            ? "linear-gradient(90deg, transparent, #00F0D1, transparent)"
+            : "linear-gradient(90deg, transparent, #FE2DA3, #8A2BE2, transparent)",
+          boxShadow: active ? "0 0 12px #00F0D1" : "0 0 12px #FE2DA3",
+        }}
+      />
       <label className="block">
         <span className="block text-base font-bold normal-case tracking-normal text-[#F5F2EC]" style={{ fontFamily: "var(--font-sub)" }}>{label}</span>
         {hint && <span className="mt-1 block text-sm font-normal normal-case tracking-normal text-[#F5F2EC]/60">{hint}</span>}
@@ -711,8 +740,8 @@ function Field({
                 onClick={() => onChange(chip)}
                 className={`xcel-pop rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 ${
                   selected
-                    ? "border-[#FE2DA3] bg-[#FE2DA3] text-white shadow-[0_0_18px_rgba(254,45,163,0.55)]"
-                    : "border-white/15 bg-black/40 text-[#F5F2EC]/75 hover:border-[#00F0D1]/60 hover:bg-[#00F0D1]/10 hover:text-[#00F0D1]"
+                    ? "border-[#00F0D1] bg-[#00F0D1] text-[#0B0B0D] shadow-[0_0_18px_rgba(0,240,209,0.6)]"
+                    : "border-[#FE2DA3] bg-[#FE2DA3] text-white shadow-[0_0_14px_rgba(254,45,163,0.45)] hover:bg-[#FE2DA3]/90 hover:shadow-[0_0_20px_rgba(254,45,163,0.65)]"
                 }`}
                 style={{ animationDelay: `${i * 0.04}s` }}
               >
