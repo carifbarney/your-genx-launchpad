@@ -17,11 +17,22 @@ export const Route = createFileRoute("/dashboard")({
 
 type ToolKey = "starting_point" | "product" | "storefront" | "launch_plan";
 
-const TOOLS: { key: ToolKey; num: number; emoji: string; title: string; subtitle: string }[] = [
-  { key: "starting_point", num: 1, emoji: "⚡", title: "Find Your Lane",   subtitle: "Get unstuck in 60 seconds" },
-  { key: "product",        num: 2, emoji: "🎵", title: "Build Your Thing", subtitle: "A real product. No maybes." },
-  { key: "storefront",     num: 3, emoji: "📼", title: "Open Your Shop",   subtitle: "Beacons in one sitting" },
-  { key: "launch_plan",    num: 4, emoji: "🎸", title: "Launch & Sell",    subtitle: "Your 30-day game plan" },
+const VinylRecord = () => (
+  <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" style={{ display: "inline-block", verticalAlign: "-0.125em" }}>
+    <circle cx="12" cy="12" r="11" fill="#0B0B0D" stroke="#111" strokeWidth="0.5" />
+    <circle cx="12" cy="12" r="9.2" fill="none" stroke="#2a2a2a" strokeWidth="0.3" />
+    <circle cx="12" cy="12" r="7.6" fill="none" stroke="#2a2a2a" strokeWidth="0.3" />
+    <circle cx="12" cy="12" r="6.0" fill="none" stroke="#2a2a2a" strokeWidth="0.3" />
+    <circle cx="12" cy="12" r="4.4" fill="#FE2DA3" />
+    <circle cx="12" cy="12" r="0.7" fill="#0B0B0D" />
+  </svg>
+);
+
+const TOOLS: { key: ToolKey; num: number; emoji: React.ReactNode; title: string; subtitle: string }[] = [
+  { key: "starting_point", num: 1, emoji: "⚡",            title: "Find Your Lane",   subtitle: "Get unstuck in 60 seconds" },
+  { key: "product",        num: 2, emoji: <VinylRecord />, title: "Build Your Thing", subtitle: "A real product. No maybes." },
+  { key: "storefront",     num: 3, emoji: "📼",            title: "Open Your Shop",   subtitle: "Beacons in one sitting" },
+  { key: "launch_plan",    num: 4, emoji: "🎸",            title: "Launch & Sell",    subtitle: "Your 30-day game plan" },
 ];
 
 const NEXT_TOOL: Partial<Record<ToolKey, ToolKey>> = {
