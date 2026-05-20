@@ -43,6 +43,8 @@ const NEXT_TOOL: Partial<Record<ToolKey, ToolKey>> = {
 
 type PlanRow = {
   niche: string | null; roadblock: string | null; day: string | null;
+  transformation: string | null; who_help: string | null;
+  their_frustration: string | null; their_dream: string | null;
   starting_point_output: string | null; product_output: string | null;
   storefront_output: string | null; launch_plan_output: string | null;
 } | null;
