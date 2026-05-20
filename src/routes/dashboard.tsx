@@ -518,11 +518,11 @@ function ToolPanel({
                   "Something I can finish in a weekend",
                   "Affiliate-friendly so I don't have to make it",
                   "Surprise me",
-                  "Quick-Win Guide — a focused PDF solving one specific problem fast",
-                  "Mini Workshop — a short video training walking through my process",
-                  "Template Toolkit — done-for-you templates ready to deploy",
-                  "Workbook / Planner — a structured guide through the transformation",
-                  "Mini Course — a multi-module course teaching my full system",
+                  "Quick-Win Guide",
+                  "Mini Workshop",
+                  "Template Toolkit",
+                  "Workbook / Planner",
+                  "Mini Course",
                 ]}
               />
             </>
