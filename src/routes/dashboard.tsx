@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import xcelerateLogo from "@/assets/xcelerate-logo.png";
 import {
   generateXcelerateResponse,
   getRemainingRequests,
@@ -17,10 +18,10 @@ export const Route = createFileRoute("/dashboard")({
 type ToolKey = "starting_point" | "product" | "storefront" | "launch_plan";
 
 const TOOLS: { key: ToolKey; num: number; emoji: string; title: string; subtitle: string }[] = [
-  { key: "starting_point", num: 1, emoji: "🧭", title: "Find Your Lane", subtitle: "Get unstuck in 60 seconds" },
-  { key: "product",        num: 2, emoji: "💡", title: "Build Your Thing", subtitle: "A real product, not a maybe" },
-  { key: "storefront",     num: 3, emoji: "🛍️", title: "Open Your Shop", subtitle: "Beacons in one sitting" },
-  { key: "launch_plan",    num: 4, emoji: "🚀", title: "Launch & Sell",   subtitle: "Your 30-day game plan" },
+  { key: "starting_point", num: 1, emoji: "⚡", title: "Find Your Lane",   subtitle: "Get unstuck in 60 seconds" },
+  { key: "product",        num: 2, emoji: "💿", title: "Build Your Thing", subtitle: "A real product. No maybes." },
+  { key: "storefront",     num: 3, emoji: "📼", title: "Open Your Shop",   subtitle: "Beacons in one sitting" },
+  { key: "launch_plan",    num: 4, emoji: "🎸", title: "Launch & Sell",    subtitle: "Your 30-day game plan" },
 ];
 
 const NEXT_TOOL: Partial<Record<ToolKey, ToolKey>> = {
@@ -76,7 +77,11 @@ function Dashboard() {
   };
 
   if (checking) {
-    return <main className="flex min-h-screen items-center justify-center bg-background"><p className="text-sm text-muted-foreground">Loading…</p></main>;
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background">
+        <p className="xcel-kicker xcel-flicker">Powering up…</p>
+      </main>
+    );
   }
 
   const completed = {
@@ -91,21 +96,21 @@ function Dashboard() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background">
-      {/* Animated background blobs */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full bg-[oklch(0.85_0.13_45)] opacity-40 blur-3xl xcel-blob" />
-        <div className="absolute top-40 -right-32 h-[480px] w-[480px] rounded-full bg-[oklch(0.80_0.18_345)] opacity-30 blur-3xl xcel-blob" style={{ animationDelay: "-6s" }} />
-        <div className="absolute bottom-0 left-1/3 h-[380px] w-[380px] rounded-full bg-[oklch(0.78_0.16_295)] opacity-25 blur-3xl xcel-blob" style={{ animationDelay: "-12s" }} />
+      {/* Retro neon background — grid floor + sunset blobs */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute inset-x-0 bottom-0 top-1/2"><div className="xcel-grid-floor" /></div>
+        <div className="absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full bg-[#FE2DA3] opacity-25 blur-3xl xcel-blob" />
+        <div className="absolute top-40 -right-32 h-[480px] w-[480px] rounded-full bg-[#8A2BE2] opacity-25 blur-3xl xcel-blob" style={{ animationDelay: "-6s" }} />
+        <div className="absolute bottom-0 left-1/3 h-[380px] w-[380px] rounded-full bg-[#00F0D1] opacity-15 blur-3xl xcel-blob" style={{ animationDelay: "-12s" }} />
       </div>
 
-      <header className="border-b border-border/60 bg-background/70 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <span className="bg-gradient-to-r from-[oklch(0.65_0.22_35)] via-[oklch(0.62_0.27_348)] to-[oklch(0.55_0.22_295)] bg-clip-text text-xl font-extrabold tracking-tight text-transparent">
-            Xcelerate
-          </span>
+      <header className="relative border-b border-[#FE2DA3]/20 bg-black/40 backdrop-blur-md">
+        <span aria-hidden className="absolute inset-x-0 bottom-0 h-px" style={{ background: "linear-gradient(90deg, transparent, #FE2DA3 30%, #00F0D1 70%, transparent)" }} />
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
+          <img src={xcelerateLogo} alt="Xcelerate" className="h-10 w-auto drop-shadow-[0_0_12px_rgba(254,45,163,0.55)]" />
           <div className="flex items-center gap-4">
-            <span className="hidden text-xs text-muted-foreground sm:inline">{email}</span>
-            <button onClick={handleLogout} className="text-sm font-semibold text-muted-foreground transition hover:text-foreground">
+            <span className="hidden font-mono text-[11px] uppercase tracking-widest text-[#00F0D1]/80 sm:inline">{email}</span>
+            <button onClick={handleLogout} className="xcel-kicker transition hover:text-[#00F0D1]">
               Log out
             </button>
           </div>
@@ -115,40 +120,44 @@ function Dashboard() {
       <section className="relative mx-auto max-w-5xl px-6 py-10">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4 xcel-fade-up">
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-sm font-semibold text-muted-foreground backdrop-blur">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[oklch(0.65_0.20_145)]" />
-              {completedCount === 0 ? "Let's start fresh" : completedCount === 4 ? "You did the whole thing 🎉" : `${completedCount} of 4 done — keep going`}
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#FE2DA3]/40 bg-black/60 px-3 py-1 backdrop-blur">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#00F0D1] shadow-[0_0_8px_#00F0D1]" />
+              <span className="xcel-kicker text-[#F5F2EC]">
+                {completedCount === 0 ? "Side A — Track 1" : completedCount === 4 ? "Album complete — go gold" : `${completedCount} of 4 in the can`}
+              </span>
             </div>
-            <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl">
-              Hey — let's build{" "}
-              <span className="bg-gradient-to-r from-[oklch(0.65_0.22_35)] via-[oklch(0.62_0.27_348)] to-[oklch(0.55_0.22_295)] bg-clip-text text-transparent">
-                your thing
-              </span>{" "}
-              👋
+            <h1 className="text-5xl leading-[0.95] sm:text-6xl">
+              <span className="xcel-chrome-text">All gas.</span>
+              <br />
+              <span className="xcel-neon-pink xcel-neon-pulse">No brakes.</span>
             </h1>
-            <p className="mt-3 text-lg text-muted-foreground">Four steps. No fluff. You'll have something real today.</p>
+            <p className="mt-4 max-w-md font-sans text-base normal-case tracking-normal text-[#F5F2EC]/75">
+              Four tracks. No filler. You walk out tonight with something real.
+            </p>
             {remaining !== null && (
-              <p className="mt-2 text-sm text-muted-foreground">{remaining} of 20 AI requests left today</p>
+              <p className="mt-3 font-mono text-[11px] uppercase tracking-widest text-[#00F0D1]/80">
+                ▮ {remaining} of 20 AI runs left today
+              </p>
             )}
           </div>
           {(plan?.niche || plan?.starting_point_output) && (
             <button onClick={handleStartFresh}
-              className="rounded-full border border-border bg-card/80 px-4 py-2 text-sm font-semibold text-muted-foreground backdrop-blur transition hover:border-foreground/40 hover:text-foreground">
-              ↺ Start fresh
+              className="xcel-btn-ghost rounded-full px-4 py-2 text-xs">
+              ↺ Rewind tape
             </button>
           )}
         </div>
 
         {/* Progress bar */}
         <div className="mb-8 xcel-fade-up" style={{ animationDelay: "0.05s" }}>
-          <div className="mb-2 flex items-center justify-between text-sm font-semibold text-muted-foreground">
-            <span>Your launch progress</span>
-            <span>{Math.round(progressPct)}%</span>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="xcel-kicker">Launch sequence</span>
+            <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#00F0D1]">{Math.round(progressPct)}%</span>
           </div>
-          <div className="relative h-3 w-full overflow-hidden rounded-full bg-border/60">
+          <div className="relative h-2.5 w-full overflow-hidden rounded-full border border-[#FE2DA3]/30 bg-black/60">
             <div
               className="h-full rounded-full transition-all duration-700 ease-out"
-              style={{ width: `${progressPct}%`, background: "var(--gradient-brand)" }}
+              style={{ width: `${progressPct}%`, background: "linear-gradient(90deg, #FE2DA3, #8A2BE2, #00F0D1)", boxShadow: "0 0 16px rgba(254,45,163,0.7)" }}
             />
           </div>
         </div>
@@ -164,8 +173,8 @@ function Dashboard() {
                 onClick={() => setActiveTool(t.key)}
                 className={`group relative overflow-hidden rounded-2xl border p-4 text-left transition-all duration-300 xcel-fade-up ${
                   active
-                    ? "border-transparent bg-card shadow-[0_10px_30px_-10px_oklch(0.62_0.27_348/0.35)] -translate-y-0.5"
-                    : "border-border bg-card/60 backdrop-blur hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md"
+                    ? "-translate-y-0.5 border-[#FE2DA3]/60 bg-[#141418] shadow-[0_0_24px_rgba(254,45,163,0.35)]"
+                    : "border-white/10 bg-black/40 backdrop-blur hover:-translate-y-0.5 hover:border-[#00F0D1]/40 hover:shadow-[0_0_18px_rgba(0,240,209,0.18)]"
                 }`}
                 style={{ animationDelay: `${0.08 + i * 0.05}s` }}
               >
@@ -173,23 +182,23 @@ function Dashboard() {
                   <span
                     aria-hidden
                     className="absolute inset-0 -z-10 opacity-100"
-                    style={{ background: "linear-gradient(135deg, oklch(0.62 0.27 348 / 0.18) 0%, oklch(0.55 0.22 295 / 0.18) 100%)" }}
+                    style={{ background: "linear-gradient(135deg, rgba(254,45,163,0.18) 0%, rgba(138,43,226,0.18) 100%)" }}
                   />
                 )}
                 {active && (
-                  <span aria-hidden className="absolute inset-x-0 top-0 h-1" style={{ background: "var(--gradient-brand)" }} />
+                  <span aria-hidden className="absolute inset-x-0 top-0 h-[2px]" style={{ background: "linear-gradient(90deg, #FE2DA3, #00F0D1)", boxShadow: "0 0 10px #FE2DA3" }} />
                 )}
                 <div className="flex items-center justify-between">
                   <span className={`text-2xl leading-none transition-transform duration-300 ${active ? "scale-110" : "group-hover:scale-110"}`}>{t.emoji}</span>
                   {done && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[oklch(0.70_0.18_145/0.18)] px-2 py-0.5 text-xs font-bold text-[oklch(0.78_0.18_145)]">
-                      ✓ Done
+                    <span className="inline-flex items-center gap-1 rounded-full border border-[#00F0D1]/50 bg-[#00F0D1]/10 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-widest text-[#00F0D1] shadow-[0_0_10px_rgba(0,240,209,0.35)]">
+                      ✓ Cut
                     </span>
                   )}
                 </div>
-                <div className="mt-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Step {t.num}</div>
-                <div className="mt-1 text-base font-bold leading-tight">{t.title}</div>
-                <div className="mt-1 text-sm text-muted-foreground">{t.subtitle}</div>
+                <div className="mt-3 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#FE2DA3]">Track 0{t.num}</div>
+                <div className="mt-1 font-[var(--font-display)] text-lg leading-tight tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>{t.title}</div>
+                <div className="mt-1 text-xs normal-case tracking-normal text-[#F5F2EC]/60">{t.subtitle}</div>
               </button>
             );
           })}
@@ -304,12 +313,12 @@ function ToolPanel({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-card/90 p-6 shadow-[0_10px_40px_-20px_rgba(15,23,42,0.18)] backdrop-blur-md sm:p-8 xcel-fade-up">
-      <span aria-hidden className="absolute inset-x-0 top-0 h-1" style={{ background: "var(--gradient-brand)" }} />
+    <div className="xcel-card xcel-scanlines relative overflow-hidden p-6 backdrop-blur-md sm:p-8 xcel-fade-up">
+      <span aria-hidden className="absolute inset-x-0 top-0 h-[2px]" style={{ background: "linear-gradient(90deg, #FE2DA3, #8A2BE2, #00F0D1)", boxShadow: "0 0 12px #FE2DA3" }} />
       <ToolHeader tool={tool} />
 
       {prerequisite ? (
-        <div className="mt-6 rounded-md border border-border bg-background/50 p-5 text-sm text-muted-foreground">
+        <div className="mt-6 rounded-md border border-[#00F0D1]/30 bg-black/40 p-5 text-sm text-[#F5F2EC]/80">
           {prerequisite}
         </div>
       ) : (
@@ -427,20 +436,19 @@ function ToolPanel({
           )}
 
           {errorMsg && (
-            <p className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">{errorMsg}</p>
+            <p className="rounded-md border border-[#FF3B6B]/40 bg-[#FF3B6B]/10 px-4 py-3 text-sm font-semibold text-[#FF8FAA]">{errorMsg}</p>
           )}
 
           {disabled && !streaming && (
-            <p className="rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
-              You've used all 20 of today's AI requests. Your quota resets at midnight — come back tomorrow and pick right up where you left off. 💛
+            <p className="rounded-xl border border-[#00F0D1]/40 bg-[#00F0D1]/10 px-4 py-3 text-sm font-semibold text-[#00F0D1]">
+              That's a wrap — all 20 AI runs burned for today. Tape resets at midnight. Come back tomorrow and pick up where you left off.
             </p>
           )}
 
           <button type="submit" disabled={streaming || disabled}
-            className="group relative w-full overflow-hidden rounded-xl px-6 py-4 text-lg font-bold text-white shadow-[0_10px_30px_-10px_oklch(0.62_0.27_348/0.55)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_15px_40px_-10px_oklch(0.62_0.27_348/0.65)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
-            style={{ background: "var(--gradient-brand)" }}>
+            className="xcel-btn-neon group relative w-full overflow-hidden rounded-xl px-6 py-4 text-base disabled:cursor-not-allowed disabled:opacity-60">
             <span className="relative z-10">
-              {streaming ? "✨ Cooking it up…" : disabled ? "🚫 Out of requests for today" : output ? "↺ Try again with new info" : "✨ Show me what to do"}
+              {streaming ? "⚡ Recording…" : disabled ? "🚫 Out of runs for today" : output ? "↺ Run it again" : "⚡ Drop the needle"}
             </span>
             {!streaming && (
               <span aria-hidden className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
@@ -450,29 +458,29 @@ function ToolPanel({
       )}
 
       {(output || streaming) && (
-        <div ref={outputRef} className="relative mt-8 overflow-hidden rounded-2xl border border-border/70 bg-background/90 p-6 shadow-sm xcel-fade-up">
+        <div ref={outputRef} className="relative mt-8 overflow-hidden rounded-2xl border border-[#00F0D1]/30 bg-black/60 p-6 shadow-[0_0_24px_rgba(0,240,209,0.10)] xcel-fade-up">
           {streaming && !output && (
             <div className="flex flex-col items-start gap-4 py-6">
-              <div className="flex items-center gap-2 text-base font-semibold text-foreground">
+              <div className="flex items-center gap-2 text-base font-semibold text-[#F5F2EC]">
                 <span className="inline-flex gap-1">
-                  <span className="h-2 w-2 rounded-full" style={{ background: "oklch(0.65 0.22 35)", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0s" }} />
-                  <span className="h-2 w-2 rounded-full" style={{ background: "oklch(0.62 0.27 348)", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0.16s" }} />
-                  <span className="h-2 w-2 rounded-full" style={{ background: "oklch(0.55 0.22 295)", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0.32s" }} />
+                  <span className="h-2 w-2 rounded-full shadow-[0_0_8px_#FE2DA3]" style={{ background: "#FE2DA3", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0s" }} />
+                  <span className="h-2 w-2 rounded-full shadow-[0_0_8px_#8A2BE2]" style={{ background: "#8A2BE2", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0.16s" }} />
+                  <span className="h-2 w-2 rounded-full shadow-[0_0_8px_#00F0D1]" style={{ background: "#00F0D1", animation: "xcel-bounce-dot 1.4s infinite ease-in-out", animationDelay: "0.32s" }} />
                 </span>
-                Cari's AI is thinking this through…
+                <span className="xcel-kicker normal-case tracking-widest text-[#00F0D1]">Cari's AI is cooking…</span>
               </div>
               <div className="w-full space-y-2">
-                <div className="h-3 w-2/3 rounded-full bg-muted xcel-shimmer" />
-                <div className="h-3 w-full rounded-full bg-muted xcel-shimmer" />
-                <div className="h-3 w-5/6 rounded-full bg-muted xcel-shimmer" />
+                <div className="h-3 w-2/3 rounded-full bg-white/5 xcel-shimmer" />
+                <div className="h-3 w-full rounded-full bg-white/5 xcel-shimmer" />
+                <div className="h-3 w-5/6 rounded-full bg-white/5 xcel-shimmer" />
               </div>
             </div>
           )}
           {output && (
             <>
               {streaming && (
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[oklch(0.62_0.27_348/0.18)] px-3 py-1 text-sm font-semibold text-[oklch(0.80_0.18_348)]">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[oklch(0.75_0.22_348)]" /> Streaming live
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#FE2DA3]/50 bg-[#FE2DA3]/10 px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-[#FE2DA3]">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#FE2DA3] shadow-[0_0_6px_#FE2DA3]" /> ● REC — live
                 </div>
               )}
               <OutputCards output={output} streaming={streaming} />
@@ -487,15 +495,14 @@ function ToolPanel({
               )}
               {!streaming && (
                 <div className="mt-6 flex flex-wrap items-center gap-3">
-                  <button onClick={handleCopy} className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-base font-semibold transition hover:border-foreground/40 hover:bg-accent">
+                  <button onClick={handleCopy} className="xcel-btn-ghost inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs">
                     {copied ? "✓ Copied!" : "📋 Copy"}
                   </button>
                   {NEXT_TOOL[tool] && (
                     <button
                       type="button"
                       onClick={() => onAdvance(NEXT_TOOL[tool]!)}
-                      className="group ml-auto inline-flex items-center gap-2 rounded-full px-6 py-3 text-base font-extrabold text-white shadow-[0_10px_30px_-10px_oklch(0.62_0.27_348/0.55)] transition-all hover:-translate-y-0.5 hover:shadow-[0_15px_40px_-10px_oklch(0.62_0.27_348/0.65)]"
-                      style={{ background: "var(--gradient-brand)" }}
+                      className="xcel-btn-neon group ml-auto inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm"
                     >
                       Next: {TOOLS.find((t) => t.key === NEXT_TOOL[tool])!.title}
                       <span className="transition-transform group-hover:translate-x-0.5">→</span>
@@ -514,17 +521,17 @@ function ToolPanel({
 function ToolHeader({ tool }: { tool: ToolKey }) {
   const t = TOOLS.find((x) => x.key === tool)!;
   return (
-    <div className="flex items-start gap-4">
+    <div className="relative z-10 flex items-start gap-4">
       <div
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl shadow-[0_8px_20px_-8px_oklch(0.62_0.27_348/0.45)]"
-        style={{ background: "var(--gradient-brand)" }}
+        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-2xl"
+        style={{ background: "linear-gradient(135deg, #FE2DA3 0%, #8A2BE2 100%)", boxShadow: "0 0 24px rgba(254,45,163,0.55), inset 0 1px 0 rgba(255,255,255,0.3)" }}
       >
         <span className="drop-shadow-sm">{t.emoji}</span>
       </div>
       <div className="min-w-0">
-        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Step {t.num} of 4</p>
-        <h2 className="mt-0.5 text-3xl font-extrabold leading-tight">{t.title}</h2>
-        <p className="mt-1.5 text-base text-muted-foreground">{t.subtitle}</p>
+        <p className="xcel-kicker">Track 0{t.num} / 04</p>
+        <h2 className="mt-1 text-3xl leading-tight tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>{t.title}</h2>
+        <p className="mt-1.5 text-sm normal-case tracking-normal text-[#F5F2EC]/70">{t.subtitle}</p>
       </div>
     </div>
   );
@@ -540,11 +547,11 @@ function ContextSummary({ plan, show }: { plan: PlanRow; show: string[] }) {
     items.push({ label: "Your product", value: "Saved ✓" });
   if (!items.length) return null;
   return (
-    <div className="rounded-md border border-border bg-background/50 p-4">
-      <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">Using your saved answers</p>
-      <ul className="space-y-1 text-sm">
+    <div className="rounded-md border border-[#8A2BE2]/40 bg-[#8A2BE2]/5 p-4">
+      <p className="xcel-kicker mb-2 text-[#C8A4FF]">From your liner notes</p>
+      <ul className="space-y-1 text-sm text-[#F5F2EC]/80">
         {items.map((i) => (
-          <li key={i.label}><span className="font-semibold">{i.label}:</span> <span className="text-muted-foreground">{i.value.length > 100 ? i.value.slice(0, 100) + "…" : i.value}</span></li>
+          <li key={i.label}><span className="font-bold text-[#F5F2EC]">{i.label}:</span> <span className="text-[#F5F2EC]/70">{i.value.length > 100 ? i.value.slice(0, 100) + "…" : i.value}</span></li>
         ))}
       </ul>
     </div>
@@ -566,11 +573,13 @@ function Field({
   return (
     <div className="group">
       <label className="block">
-        <span className="block text-base font-bold text-foreground">{label}</span>
-        {hint && <span className="mt-1 block text-sm text-muted-foreground">{hint}</span>}
-        <div className={`relative mt-2.5 rounded-xl border-2 bg-white transition-all duration-200 ${
-          active ? "border-[oklch(0.62_0.27_348/0.5)] shadow-[0_0_0_4px_oklch(0.62_0.27_348/0.15)]" : "border-white/80 hover:border-white"
-        } focus-within:border-[oklch(0.62_0.27_348/0.7)] focus-within:shadow-[0_0_0_4px_oklch(0.62_0.27_348/0.20)]`}>
+        <span className="block text-base font-bold normal-case tracking-normal text-[#F5F2EC]" style={{ fontFamily: "var(--font-sub)" }}>{label}</span>
+        {hint && <span className="mt-1 block text-sm font-normal normal-case tracking-normal text-[#F5F2EC]/60">{hint}</span>}
+        <div className={`relative mt-2.5 rounded-xl border bg-black/50 transition-all duration-200 ${
+          active
+            ? "border-[#FE2DA3]/70 shadow-[0_0_0_3px_rgba(254,45,163,0.18),0_0_18px_rgba(254,45,163,0.35)]"
+            : "border-white/10 hover:border-[#00F0D1]/40"
+        } focus-within:border-[#FE2DA3] focus-within:shadow-[0_0_0_3px_rgba(254,45,163,0.22),0_0_24px_rgba(254,45,163,0.4)]`}>
           <textarea
             value={value}
             onChange={(e) => onChange(e.target.value)}
@@ -578,7 +587,7 @@ function Field({
             disabled={disabled}
             rows={3}
             maxLength={1000}
-            className="w-full resize-none rounded-xl bg-transparent px-4 py-3 text-base text-slate-900 placeholder:text-slate-400 focus-visible:outline-none disabled:opacity-60"
+            className="w-full resize-none rounded-xl bg-transparent px-4 py-3 text-base text-[#F5F2EC] placeholder:text-white/30 focus-visible:outline-none disabled:opacity-60"
           />
         </div>
       </label>
@@ -592,10 +601,10 @@ function Field({
                 type="button"
                 disabled={disabled}
                 onClick={() => onChange(chip)}
-                className={`xcel-pop rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 ${
+                className={`xcel-pop rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 ${
                   selected
-                    ? "border-transparent bg-[oklch(0.62_0.27_348)] text-white shadow-[0_4px_12px_-2px_oklch(0.62_0.27_348/0.5)]"
-                    : "border-border bg-background text-muted-foreground hover:border-[oklch(0.62_0.27_348/0.5)] hover:bg-[oklch(0.62_0.27_348/0.06)] hover:text-foreground"
+                    ? "border-[#FE2DA3] bg-[#FE2DA3] text-white shadow-[0_0_18px_rgba(254,45,163,0.55)]"
+                    : "border-white/15 bg-black/40 text-[#F5F2EC]/75 hover:border-[#00F0D1]/60 hover:bg-[#00F0D1]/10 hover:text-[#00F0D1]"
                 }`}
                 style={{ animationDelay: `${i * 0.04}s` }}
               >
@@ -658,15 +667,16 @@ function OutputCards({ output, streaming }: { output: string; streaming: boolean
   return (
     <div>
       <div className="mb-3 flex items-center justify-between text-sm font-semibold text-muted-foreground">
-        <span>Card {safeIdx + 1} of {total}</span>
-        <span className="hidden sm:inline">Tap the arrows or dots to flip through</span>
+        <span className="xcel-kicker text-[#00F0D1]">Side {safeIdx + 1} of {total}</span>
+        <span className="hidden font-mono text-[10px] uppercase tracking-widest text-[#F5F2EC]/50 sm:inline">◀ ▶ flip through the tracks</span>
       </div>
       <div
         key={safeIdx}
-        className="rounded-2xl border-2 border-[oklch(0.62_0.27_348/0.25)] bg-white p-6 text-slate-900 shadow-sm xcel-fade-up sm:p-8"
+        className="rounded-2xl border-2 border-[#FE2DA3]/30 p-6 text-slate-900 shadow-[0_0_24px_rgba(254,45,163,0.20)] xcel-fade-up sm:p-8"
+        style={{ background: "#F5F2EC" }}
       >
         {current.title && (
-          <h3 className="mb-4 text-2xl font-extrabold leading-tight text-slate-900">
+          <h3 className="mb-4 text-2xl leading-tight tracking-wide text-slate-900" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>
             {current.title}
           </h3>
         )}
@@ -680,9 +690,9 @@ function OutputCards({ output, streaming }: { output: string; streaming: boolean
             type="button"
             onClick={() => setIdx((i) => Math.max(0, i - 1))}
             disabled={safeIdx === 0}
-            className="inline-flex items-center gap-2 rounded-full border-2 border-border bg-card px-5 py-2.5 text-base font-bold transition hover:-translate-y-0.5 hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+            className="xcel-btn-ghost inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
           >
-            ← Back
+            ◀ Rewind
           </button>
           <div className="flex flex-wrap items-center justify-center gap-2">
             {sections.map((_, i) => (
@@ -692,7 +702,7 @@ function OutputCards({ output, streaming }: { output: string; streaming: boolean
                 aria-label={`Go to card ${i + 1}`}
                 onClick={() => setIdx(i)}
                 className={`h-2.5 rounded-full transition-all ${
-                  i === safeIdx ? "w-8 bg-[oklch(0.62_0.27_348)]" : "w-2.5 bg-border hover:bg-muted-foreground/50"
+                  i === safeIdx ? "w-8 bg-[#FE2DA3] shadow-[0_0_8px_#FE2DA3]" : "w-2.5 bg-white/15 hover:bg-[#00F0D1]/60"
                 }`}
               />
             ))}
@@ -701,9 +711,9 @@ function OutputCards({ output, streaming }: { output: string; streaming: boolean
             type="button"
             onClick={() => setIdx((i) => Math.min(total - 1, i + 1))}
             disabled={safeIdx === total - 1}
-            className="inline-flex items-center gap-2 rounded-full border-2 border-border bg-card px-5 py-2.5 text-base font-bold transition hover:-translate-y-0.5 hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+            className="xcel-btn-ghost inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
           >
-            Next →
+            Fast forward ▶
           </button>
         </div>
       )}
@@ -734,7 +744,7 @@ function renderMarkdown(text: string): ReactNode {
     // Header-only line (whole line bold)
     const headerMatch = line.match(/^\*\*([^*]+)\*\*\s*[—-]?\s*(.*)$/);
     if (headerMatch && headerMatch[2] === "") {
-      out.push(<h3 key={i} className="mt-6 mb-3 text-xl font-bold text-foreground">{headerMatch[1]}</h3>);
+      out.push(<h3 key={i} className="mt-6 mb-3 text-xl font-bold tracking-wide text-slate-900" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>{headerMatch[1]}</h3>);
       return;
     }
     if (headerMatch && headerMatch[2]) {
@@ -795,13 +805,13 @@ function BuildItWithAI({ output, plan }: { output: string; plan: PlanRow }) {
   };
 
   return (
-    <div className="mt-8 rounded-2xl border-2 border-dashed border-[oklch(0.62_0.27_348/0.4)] bg-[oklch(0.62_0.27_348/0.05)] p-6">
+    <div className="mt-8 rounded-2xl border-2 border-dashed border-[#FE2DA3]/50 bg-[#FE2DA3]/[0.06] p-6 shadow-[0_0_24px_rgba(254,45,163,0.12)]">
       <div className="mb-4 flex items-start gap-3">
-        <span className="text-3xl">🚀</span>
+        <span className="text-3xl">🎸</span>
         <div>
-          <h3 className="text-xl font-extrabold text-foreground">Now let's actually BUILD it</h3>
-          <p className="mt-1 text-base text-muted-foreground">
-            Pick your AI helper below. In preview, outside AI sites block automatic opening, so this safely copies your prompt first.
+          <h3 className="text-2xl tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>Now cut the record</h3>
+          <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">
+            Pick your AI helper below. In preview, outside sites don't open automatically — we copy the prompt first so you can paste it.
           </p>
         </div>
       </div>
@@ -811,27 +821,27 @@ function BuildItWithAI({ output, plan }: { output: string; plan: PlanRow }) {
             key={tool.name}
             type="button"
             onClick={() => copyForTool(tool.name)}
-            className="rounded-xl border-2 border-border bg-white p-4 text-left text-slate-900 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[oklch(0.62_0.27_348)] hover:shadow-md"
+            className="rounded-xl border border-white/10 bg-black/50 p-4 text-left text-[#F5F2EC] backdrop-blur transition-all hover:-translate-y-0.5 hover:border-[#FE2DA3] hover:shadow-[0_0_24px_rgba(254,45,163,0.35)]"
           >
-            <div className="flex items-center gap-2 text-lg font-extrabold"><span>{tool.emoji}</span>{tool.name}</div>
-            <p className="mt-1 text-sm font-semibold text-slate-600">{tool.note}</p>
-            <p className="mt-3 text-base font-bold text-[oklch(0.62_0.27_348)]">
+            <div className="flex items-center gap-2 text-lg tracking-wide" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}><span>{tool.emoji}</span>{tool.name}</div>
+            <p className="mt-1 text-xs font-semibold normal-case tracking-normal text-[#F5F2EC]/60">{tool.note}</p>
+            <p className="mt-3 font-mono text-xs font-bold uppercase tracking-widest text-[#FE2DA3]">
               {copiedTool === tool.name ? "✓ Prompt copied" : "Copy prompt"}
             </p>
-            <p className="mt-1 text-sm text-slate-500">Then open {tool.url} in a normal browser tab and paste.</p>
+            <p className="mt-1 text-xs normal-case tracking-normal text-[#F5F2EC]/50">Then open {tool.url} in a fresh tab and paste.</p>
           </button>
         ))}
       </div>
       <div className="mt-3 flex flex-wrap gap-3">
         <button
           onClick={copyPrompt}
-          className="inline-flex items-center gap-2 rounded-xl border-2 border-border bg-background px-5 py-3 text-base font-bold transition hover:border-foreground/40"
+          className="xcel-btn-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-xs"
         >
           {copied ? "✓ Copied prompt!" : "📋 Copy the prompt"}
         </button>
       </div>
-      <p className="mt-4 text-sm text-muted-foreground">
-        💡 This avoids the preview-window error. After publishing, you can still use the same copy-and-paste flow from the live site.
+      <p className="mt-4 text-xs normal-case tracking-normal text-[#F5F2EC]/55">
+        💡 This avoids preview-window errors. After publishing, the same copy-and-paste flow works on the live site.
       </p>
     </div>
   );
@@ -853,13 +863,13 @@ function StorefrontWalkthrough() {
   ];
   return (
     <div className="mt-8 space-y-6">
-      <div className="rounded-2xl border-2 border-dashed border-[oklch(0.55_0.22_295/0.4)] bg-[oklch(0.55_0.22_295/0.05)] p-6">
+      <div className="rounded-2xl border-2 border-dashed border-[#8A2BE2]/50 bg-[#8A2BE2]/[0.06] p-6 shadow-[0_0_24px_rgba(138,43,226,0.14)]">
         <div className="mb-4 flex items-start gap-3">
           <span className="text-3xl">📺</span>
           <div>
-            <h3 className="text-xl font-extrabold text-foreground">Watch someone set it up first</h3>
-            <p className="mt-1 text-base text-muted-foreground">
-              Seeing it done makes everything click. Pick the platform you're using, watch once start to finish, then come back and do yours.
+            <h3 className="text-2xl tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>Watch the dress rehearsal</h3>
+            <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">
+              Seeing it done once makes the whole thing click. Watch start to finish, then come back and do yours.
             </p>
           </div>
         </div>
@@ -870,7 +880,7 @@ function StorefrontWalkthrough() {
               href={`https://www.youtube.com/watch?v=${v.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="group block overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+              className="group block overflow-hidden rounded-xl border border-white/10 bg-black/60 backdrop-blur transition-all hover:-translate-y-0.5 hover:border-[#8A2BE2]/70 hover:shadow-[0_0_24px_rgba(138,43,226,0.4)]"
             >
               <div className="relative aspect-video bg-black">
                 <img
@@ -883,8 +893,8 @@ function StorefrontWalkthrough() {
                   }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors group-hover:bg-black/20">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform group-hover:scale-110">
-                    <svg className="ml-1 h-6 w-6 text-red-600" viewBox="0 0 24 24" fill="currentColor">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 shadow-[0_0_24px_rgba(254,45,163,0.55)] transition-transform group-hover:scale-110">
+                    <svg className="ml-1 h-6 w-6 text-[#FE2DA3]" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M8 5v14l11-7z" />
                     </svg>
                   </div>
@@ -892,32 +902,32 @@ function StorefrontWalkthrough() {
               </div>
               <div className="flex items-center justify-between p-4">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{v.platform}</p>
-                  <p className="mt-1 text-sm font-semibold text-foreground">{v.title}</p>
+                  <p className="xcel-kicker text-[#00F0D1]">{v.platform}</p>
+                  <p className="mt-1 text-sm font-semibold normal-case tracking-normal text-[#F5F2EC]">{v.title}</p>
                 </div>
-                <span className="rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 transition-colors group-hover:bg-red-100">Watch on YouTube →</span>
+                <span className="rounded-full border border-[#FE2DA3]/40 bg-[#FE2DA3]/10 px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-[#FE2DA3]">▶ YouTube</span>
               </div>
             </a>
           ))}
         </div>
       </div>
 
-      <div className="rounded-2xl border-2 border-dashed border-[oklch(0.65_0.22_35/0.4)] bg-[oklch(0.65_0.22_35/0.05)] p-6">
+      <div className="rounded-2xl border-2 border-dashed border-[#00F0D1]/50 bg-[#00F0D1]/[0.05] p-6 shadow-[0_0_24px_rgba(0,240,209,0.12)]">
         <div className="mb-5 flex items-start gap-3">
           <span className="text-3xl">🛠️</span>
           <div>
-            <h3 className="text-xl font-extrabold text-foreground">The 6-step setup, plain and simple</h3>
-            <p className="mt-1 text-base text-muted-foreground">Knock these out in one sitting. ~45 minutes total.</p>
+            <h3 className="text-2xl tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>The 6-step setup, no jargon</h3>
+            <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">Knock these out in one sitting. About 45 minutes, start to finish.</p>
           </div>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {steps.map((s) => (
-            <div key={s.n} className="rounded-xl border border-border bg-white p-4 shadow-sm">
+            <div key={s.n} className="rounded-xl border border-white/10 bg-black/40 p-4 backdrop-blur">
               <div className="flex items-start gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-extrabold text-white" style={{ background: "var(--gradient-brand)" }}>{s.n}</span>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-extrabold text-white shadow-[0_0_12px_rgba(254,45,163,0.5)]" style={{ background: "linear-gradient(135deg, #FE2DA3, #8A2BE2)" }}>{s.n}</span>
                 <div>
-                  <p className="text-base font-bold text-slate-900">{s.t}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-slate-600">{s.d}</p>
+                  <p className="text-base font-bold normal-case tracking-normal text-[#F5F2EC]" style={{ fontFamily: "var(--font-sub)" }}>{s.t}</p>
+                  <p className="mt-1 text-sm leading-relaxed normal-case tracking-normal text-[#F5F2EC]/70">{s.d}</p>
                 </div>
               </div>
             </div>
@@ -997,12 +1007,12 @@ function LaunchCalendar({ output }: { output: string }) {
   return (
     <div className="mt-8 space-y-6">
       {days.length > 0 && (
-        <div className="rounded-2xl border-2 border-dashed border-[oklch(0.62_0.27_348/0.4)] bg-[oklch(0.62_0.27_348/0.05)] p-6">
+        <div className="rounded-2xl border-2 border-dashed border-[#FE2DA3]/50 bg-[#FE2DA3]/[0.06] p-6 shadow-[0_0_24px_rgba(254,45,163,0.14)]">
           <div className="mb-5 flex items-start gap-3">
             <span className="text-3xl">📅</span>
             <div>
-              <h3 className="text-xl font-extrabold text-foreground">Your 30-day calendar — at a glance</h3>
-              <p className="mt-1 text-base text-muted-foreground">One square = one day. Click any day to expand it. Check 'em off as you go.</p>
+              <h3 className="text-2xl tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>Your 30-day tour calendar</h3>
+              <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">One square = one day. Click any day to expand it. Check 'em off as you knock 'em out.</p>
             </div>
           </div>
           <CalendarGrid days={days} />
@@ -1010,19 +1020,19 @@ function LaunchCalendar({ output }: { output: string }) {
       )}
 
       {platform && basics[platform] && (
-        <div className="rounded-2xl border-2 border-dashed border-[oklch(0.65_0.22_35/0.4)] bg-[oklch(0.65_0.22_35/0.05)] p-6">
+        <div className="rounded-2xl border-2 border-dashed border-[#00F0D1]/50 bg-[#00F0D1]/[0.05] p-6 shadow-[0_0_24px_rgba(0,240,209,0.12)]">
           <div className="mb-4 flex items-start gap-3">
             <span className="text-3xl">📱</span>
             <div>
-              <h3 className="text-xl font-extrabold text-foreground">{basics[platform].title}</h3>
-              <p className="mt-1 text-base text-muted-foreground">No assumptions. Here's exactly what to tap.</p>
+              <h3 className="text-2xl tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>{basics[platform].title}</h3>
+              <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">No assumptions. Here's exactly which button to push.</p>
             </div>
           </div>
           <ol className="space-y-3">
             {basics[platform].steps.map((s, i) => (
-              <li key={i} className="flex items-start gap-3 rounded-xl border border-border bg-white p-4">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-white" style={{ background: "var(--gradient-brand)" }}>{i + 1}</span>
-                <span className="text-base leading-relaxed text-slate-800">{splitBold(s)}</span>
+              <li key={i} className="flex items-start gap-3 rounded-xl border border-white/10 bg-black/40 p-4 backdrop-blur">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-white shadow-[0_0_12px_rgba(254,45,163,0.5)]" style={{ background: "linear-gradient(135deg, #FE2DA3, #8A2BE2)" }}>{i + 1}</span>
+                <span className="text-base leading-relaxed normal-case tracking-normal text-[#F5F2EC]/85">{splitBold(s)}</span>
               </li>
             ))}
           </ol>
@@ -1048,24 +1058,24 @@ function CalendarGrid({ days }: { days: { day: number; text: string }[] }) {
               type="button"
               onClick={() => setOpen(isOpen ? null : n)}
               disabled={!has}
-              className={`relative aspect-square rounded-xl border-2 text-sm font-bold transition-all ${
+              className={`relative aspect-square rounded-xl border text-sm font-bold transition-all ${
                 isOpen
-                  ? "border-transparent text-white shadow-md"
+                  ? "border-transparent text-white shadow-[0_0_24px_rgba(254,45,163,0.6)]"
                   : has
-                  ? "border-border bg-white text-slate-900 hover:-translate-y-0.5 hover:border-[oklch(0.62_0.27_348)] hover:shadow-sm"
-                  : "cursor-not-allowed border-border/40 bg-background/40 text-muted-foreground/50"
+                  ? "border-white/15 bg-black/60 text-[#F5F2EC] hover:-translate-y-0.5 hover:border-[#FE2DA3] hover:shadow-[0_0_16px_rgba(254,45,163,0.4)]"
+                  : "cursor-not-allowed border-white/5 bg-black/20 text-white/20"
               }`}
-              style={isOpen ? { background: "var(--gradient-brand)" } : undefined}
+              style={isOpen ? { background: "linear-gradient(135deg, #FE2DA3, #8A2BE2)" } : undefined}
             >
-              <span className="absolute left-2 top-1.5 text-[10px] font-bold uppercase opacity-70">Day</span>
+              <span className="absolute left-2 top-1.5 font-mono text-[9px] font-bold uppercase tracking-widest opacity-70">Day</span>
               <span className="text-lg">{n}</span>
             </button>
           );
         })}
       </div>
       {open !== null && map.has(open) && (
-        <div className="mt-4 rounded-xl border-2 border-[oklch(0.62_0.27_348/0.4)] bg-white p-5 shadow-sm xcel-fade-up">
-          <p className="text-xs font-extrabold uppercase tracking-widest text-[oklch(0.55_0.22_295)]">Day {open}</p>
+        <div className="mt-4 rounded-xl border-2 border-[#FE2DA3]/50 p-5 shadow-[0_0_24px_rgba(254,45,163,0.20)] xcel-fade-up" style={{ background: "#F5F2EC" }}>
+          <p className="font-mono text-[10px] font-extrabold uppercase tracking-widest text-[#8A2BE2]">Day {open}</p>
           <p className="mt-2 text-base leading-relaxed text-slate-900">{splitBold(map.get(open)!)}</p>
         </div>
       )}
