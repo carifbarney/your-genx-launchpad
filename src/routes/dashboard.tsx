@@ -744,7 +744,7 @@ function renderMarkdown(text: string): ReactNode {
     // Header-only line (whole line bold)
     const headerMatch = line.match(/^\*\*([^*]+)\*\*\s*[—-]?\s*(.*)$/);
     if (headerMatch && headerMatch[2] === "") {
-      out.push(<h3 key={i} className="mt-6 mb-3 text-xl font-bold text-foreground">{headerMatch[1]}</h3>);
+      out.push(<h3 key={i} className="mt-6 mb-3 text-xl font-bold tracking-wide text-slate-900" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>{headerMatch[1]}</h3>);
       return;
     }
     if (headerMatch && headerMatch[2]) {
