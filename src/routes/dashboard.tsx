@@ -728,7 +728,7 @@ function Field({
   const active = value.trim().length > 0;
   return (
     <div
-      className={`group relative rounded-2xl border bg-black/60 p-5 backdrop-blur-sm transition-all duration-300 ${
+      className={`group relative rounded-2xl border bg-black/60 p-7 sm:p-9 backdrop-blur-sm transition-all duration-300 ${
         active
           ? "border-[#00F0D1]/60 shadow-[0_0_28px_rgba(0,240,209,0.30),inset_0_0_22px_rgba(0,240,209,0.10)]"
           : "border-[#FE2DA3]/35 shadow-[0_0_22px_rgba(254,45,163,0.22),inset_0_0_18px_rgba(254,45,163,0.06)] hover:border-[#FE2DA3]/55 hover:shadow-[0_0_30px_rgba(254,45,163,0.32),inset_0_0_22px_rgba(254,45,163,0.08)]"
@@ -745,9 +745,9 @@ function Field({
         }}
       />
       <label className="block">
-        <span className="block text-base font-bold normal-case tracking-normal text-[#F5F2EC]" style={{ fontFamily: "var(--font-sub)" }}>{label}</span>
-        {hint && <span className="mt-1 block text-sm font-normal normal-case tracking-normal text-[#F5F2EC]/60">{hint}</span>}
-        <div className={`relative mt-2.5 rounded-xl border bg-black/50 transition-all duration-200 ${
+        <span className="block text-lg sm:text-xl font-bold normal-case tracking-normal text-[#F5F2EC]" style={{ fontFamily: "var(--font-sub)" }}>{label}</span>
+        {hint && <span className="mt-2 block text-sm sm:text-[15px] font-normal normal-case tracking-normal text-[#F5F2EC]/65">{hint}</span>}
+        <div className={`relative mt-4 rounded-xl border bg-black/50 transition-all duration-200 ${
           active
             ? "border-[#FE2DA3]/70 shadow-[0_0_0_3px_rgba(254,45,163,0.18),0_0_18px_rgba(254,45,163,0.35)]"
             : "border-white/10 hover:border-[#00F0D1]/40"
@@ -757,14 +757,14 @@ function Field({
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
             disabled={disabled}
-            rows={3}
+            rows={5}
             maxLength={1000}
             className="w-full resize-none rounded-xl bg-transparent px-4 py-3 text-base text-[#F5F2EC] placeholder:text-white/30 focus-visible:outline-none disabled:opacity-60"
           />
         </div>
       </label>
       {chips && chips.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-5 flex flex-wrap gap-2.5">
           {chips.map((chip, i) => {
             const selected = value === chip;
             return (
