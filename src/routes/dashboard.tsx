@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } 
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import xcelerateLogo from "@/assets/xcelerate-logo.png";
+import { jsPDF } from "jspdf";
 import {
   generateXcelerateResponse,
   getRemainingRequests,
