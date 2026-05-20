@@ -852,14 +852,45 @@ function BlueprintCard({
 
   const [downloaded, setDownloaded] = useState(false);
 
-  const handleDownload = () => {
+  const loadLogo = async (): Promise<{ dataUrl: string; w: number; h: number } | null> => {
+    try {
+      const res = await fetch(xcelerateLogo);
+      const blob = await res.blob();
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = reject;
+        r.readAsDataURL(blob);
+      });
+      const dims = await new Promise<{ w: number; h: number }>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+        img.onerror = reject;
+        img.src = dataUrl;
+      });
+      return { dataUrl, w: dims.w, h: dims.h };
+    } catch {
+      return null;
+    }
+  };
+
+  const handleDownload = async () => {
+    const logo = await loadLogo();
     const doc = new jsPDF({ unit: "pt", format: "letter" });
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
-    const margin = 56;
-    const contentTop = 132; // below the header band
-    const contentBottom = pageH - 56;
+    const margin = 60;
+    const headerH = 72;          // pink band height
+    const headerBottom = headerH + 8; // includes thin teal underline strip
+    const contentTop = headerBottom + 40;
+    const contentBottom = pageH - 60;
     const maxW = pageW - margin * 2;
+
+    // Consistent body typography
+    const BODY_SIZE = 11;
+    const BODY_LINE_H = BODY_SIZE * 1.55;
+    const PARA_GAP = 12;
+    const SECTION_GAP = 22;
 
     // Brand palette (printer-friendly: mostly white page, color used in accents)
     const PINK: [number, number, number] = [254, 45, 163];
@@ -874,28 +905,41 @@ function BlueprintCard({
     let page = 1;
 
     const drawPageChrome = () => {
-      // Top band: thick pink + thin teal underline
+      // Top band: thick pink + thin purple + teal underline
       doc.setFillColor(...PINK);
-      doc.rect(0, 0, pageW, 56, "F");
+      doc.rect(0, 0, pageW, headerH, "F");
       doc.setFillColor(...PURPLE);
-      doc.rect(0, 56, pageW, 6, "F");
+      doc.rect(0, headerH, pageW, 6, "F");
       doc.setFillColor(...TEAL);
-      doc.rect(0, 62, pageW, 2, "F");
+      doc.rect(0, headerH + 6, pageW, 2, "F");
 
-      // Wordmark in the band
+      // Logo on the left of the band (preserve aspect ratio)
+      if (logo) {
+        const targetH = 44;
+        const targetW = (logo.w / logo.h) * targetH;
+        const cappedW = Math.min(targetW, 220);
+        const finalW = cappedW;
+        const finalH = (logo.h / logo.w) * finalW;
+        const yOffset = (headerH - finalH) / 2;
+        doc.addImage(logo.dataUrl, "PNG", margin, yOffset, finalW, finalH);
+      } else {
+        // Fallback wordmark
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(22);
+        doc.setTextColor(255, 255, 255);
+        doc.text("XCELERATE", margin, headerH / 2 + 7);
+      }
+
+      // Tagline on the right
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(20);
-      doc.setTextColor(255, 255, 255);
-      doc.text("XCELERATE", margin, 36);
-      doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(255, 255, 255);
-      doc.text("ALL GAS · NO BRAKES", pageW - margin, 36, { align: "right" });
+      doc.text("ALL GAS · NO BRAKES", pageW - margin, headerH / 2 + 3, { align: "right" });
 
       // Footer hairline
       doc.setDrawColor(...PINK);
       doc.setLineWidth(1);
-      doc.line(margin, pageH - 36, pageW - margin, pageH - 36);
+      doc.line(margin, pageH - 38, pageW - margin, pageH - 38);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8);
       doc.setTextColor(...MUTED);
@@ -915,10 +959,16 @@ function BlueprintCard({
     };
 
     // Wrap + write paragraph, supporting **bold** segments inline.
-    const writeRich = (text: string, size: number, color: [number, number, number], gapAfter = 8) => {
+    const writeRich = (
+      text: string,
+      size: number,
+      color: [number, number, number],
+      gapAfter = PARA_GAP,
+      indent = 0,
+    ) => {
       doc.setFontSize(size);
       doc.setTextColor(...color);
-      const lineH = size * 1.45;
+      const lineH = size === BODY_SIZE ? BODY_LINE_H : size * 1.55;
       // Tokenize into {text, bold} chunks first
       const tokens: { text: string; bold: boolean }[] = [];
       const parts = text.split(/(\*\*[^*]+\*\*)/g);
@@ -928,10 +978,11 @@ function BlueprintCard({
         else tokens.push({ text: part, bold: false });
       }
       // Layout word-by-word
-      let cursorX = margin;
+      const lineStart = margin + indent;
+      let cursorX = lineStart;
       ensureSpace(lineH);
       const space = () => { doc.setFont("helvetica", "normal"); return doc.getTextWidth(" "); };
-      const flushNewLine = () => { y += lineH; cursorX = margin; ensureSpace(lineH); };
+      const flushNewLine = () => { y += lineH; cursorX = lineStart; ensureSpace(lineH); };
       for (const tok of tokens) {
         doc.setFont("helvetica", tok.bold ? "bold" : "normal");
         const words = tok.text.split(/(\s+)/); // keep whitespace
@@ -939,7 +990,7 @@ function BlueprintCard({
           if (!w) continue;
           if (/^\s+$/.test(w)) {
             // collapse to single space; ignore at start of line
-            if (cursorX > margin) cursorX += space();
+            if (cursorX > lineStart) cursorX += space();
             continue;
           }
           const wWidth = doc.getTextWidth(w);
@@ -960,16 +1011,16 @@ function BlueprintCard({
     doc.setFontSize(10);
     doc.setTextColor(...PINK);
     doc.text("TRACK 01 · FIND YOUR LANE", margin, y);
-    y += 22;
+    y += 26;
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(34);
+    doc.setFontSize(32);
     doc.setTextColor(...INK);
     doc.text("YOUR BLUEPRINT", margin, y);
-    y += 10;
+    y += 14;
 
     // Gradient-feel underline: pink → purple → teal segments
-    const ulY = y + 6;
+    const ulY = y + 4;
     const ulW = maxW;
     doc.setLineWidth(3);
     doc.setDrawColor(...PINK);
@@ -978,22 +1029,23 @@ function BlueprintCard({
     doc.line(margin + ulW * 0.4, ulY, margin + ulW * 0.75, ulY);
     doc.setDrawColor(...TEAL);
     doc.line(margin + ulW * 0.75, ulY, margin + ulW, ulY);
-    y += 28;
+    y += 32;
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
     doc.setTextColor(...MUTED);
     doc.text("The goldmine you're already sitting on. Print it. Pin it. Build from it.", margin, y);
-    y += 28;
+    y += 32;
 
     // Niche callout — cream box with pink left bar
     if (plan?.niche) {
       const niche = plan.niche.trim();
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(12);
-      const wrapped = doc.splitTextToSize(niche, maxW - 28) as string[];
-      const boxH = 18 + wrapped.length * 16 + 16;
-      ensureSpace(boxH + 12);
+      doc.setFontSize(BODY_SIZE);
+      const innerPadX = 18;
+      const wrapped = doc.splitTextToSize(niche, maxW - innerPadX * 2) as string[];
+      const boxH = 22 + 14 + wrapped.length * BODY_LINE_H + 22;
+      ensureSpace(boxH + 16);
       doc.setFillColor(...CREAM);
       doc.roundedRect(margin, y, maxW, boxH, 6, 6, "F");
       doc.setFillColor(...PINK);
@@ -1001,44 +1053,44 @@ function BlueprintCard({
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9);
       doc.setTextColor(...PURPLE);
-      doc.text("YOUR NICHE IDEA", margin + 16, y + 18);
+      doc.text("YOUR NICHE IDEA", margin + innerPadX, y + 22);
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(12);
+      doc.setFontSize(BODY_SIZE);
       doc.setTextColor(...INK);
-      let ty = y + 36;
+      let ty = y + 22 + 14 + BODY_SIZE;
       for (const ln of wrapped) {
-        doc.text(ln, margin + 16, ty);
-        ty += 16;
+        doc.text(ln, margin + innerPadX, ty);
+        ty += BODY_LINE_H;
       }
-      y += boxH + 22;
+      y += boxH + 26;
     }
 
     // ===== Sections =====
     for (const s of sections) {
       if (s.title) {
-        ensureSpace(46);
+        ensureSpace(58);
         // Pink track tag + title
         const tag = "▮ SECTION";
         doc.setFont("helvetica", "bold");
         doc.setFontSize(8);
         doc.setTextColor(...TEAL);
         doc.text(tag, margin, y);
-        y += 12;
+        y += 14;
 
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
+        doc.setFontSize(15);
         doc.setTextColor(...PINK);
         const titleLines = doc.splitTextToSize(s.title.toUpperCase(), maxW) as string[];
         for (const tl of titleLines) {
-          ensureSpace(20);
+          ensureSpace(22);
           doc.text(tl, margin, y);
-          y += 20;
+          y += 22;
         }
         // Short purple underline accent
         doc.setDrawColor(...PURPLE);
         doc.setLineWidth(1.5);
         doc.line(margin, y, margin + 48, y);
-        y += 14;
+        y += 18;
       }
 
       const body = s.body.trim();
@@ -1049,49 +1101,17 @@ function BlueprintCard({
         // Bullet handling
         const bullet = clean.match(/^\s*[-*]\s+(.*)$/);
         if (bullet) {
-          // Bullet dot in pink, text in body
-          ensureSpace(16);
+          ensureSpace(BODY_LINE_H);
           doc.setFont("helvetica", "bold");
-          doc.setFontSize(11);
+          doc.setFontSize(BODY_SIZE);
           doc.setTextColor(...PINK);
           doc.text("•", margin, y);
-          const saveX = margin;
-          // Shift content right by indenting via temporary maxW reduction
-          const indent = 14;
-          // Render with manual indent: temporarily adjust margin by writing offset
-          // Simpler: just write rich text with leading spaces of width = indent
-          // To respect indent on wraps, we re-implement a tiny indented writer:
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(11);
-          doc.setTextColor(...BODY);
-          const innerMax = maxW - indent;
-          const tokens: { text: string; bold: boolean }[] = [];
-          for (const part of bullet[1].split(/(\*\*[^*]+\*\*)/g)) {
-            if (!part) continue;
-            tokens.push(part.startsWith("**") && part.endsWith("**")
-              ? { text: part.slice(2, -2), bold: true }
-              : { text: part, bold: false });
-          }
-          let cursorX = saveX + indent;
-          const lineH = 11 * 1.45;
-          for (const tok of tokens) {
-            doc.setFont("helvetica", tok.bold ? "bold" : "normal");
-            const words = tok.text.split(/(\s+)/);
-            for (const w of words) {
-              if (!w) continue;
-              if (/^\s+$/.test(w)) { if (cursorX > saveX + indent) cursorX += doc.getTextWidth(" "); continue; }
-              const wW = doc.getTextWidth(w);
-              if (cursorX + wW > saveX + indent + innerMax) { y += lineH; cursorX = saveX + indent; ensureSpace(lineH); }
-              doc.text(w, cursorX, y);
-              cursorX += wW;
-            }
-          }
-          y += lineH + 4;
+          writeRich(bullet[1], BODY_SIZE, BODY, PARA_GAP - 2, 16);
         } else {
-          writeRich(clean, 11, BODY, 8);
+          writeRich(clean, BODY_SIZE, BODY, PARA_GAP);
         }
       }
-      y += 8;
+      y += SECTION_GAP - PARA_GAP;
     }
 
     doc.save("xcelerate-blueprint.pdf");
