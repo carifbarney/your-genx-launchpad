@@ -444,98 +444,63 @@ function ToolPanel({
                 </p>
               </div>
 
+              {/* Stepper progress */}
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#F5F2EC]/60">
+                  Question {String(spStep + 1).padStart(2, "0")} <span className="text-[#F5F2EC]/30">of {String(startingPointSteps.length).padStart(2, "0")}</span>
+                </p>
+                <div className="flex flex-1 items-center gap-1.5">
+                  {startingPointSteps.map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setSpStep(i)}
+                      disabled={streaming}
+                      aria-label={`Go to question ${i + 1}`}
+                      className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                        i < spStep
+                          ? "bg-[#00F0D1] shadow-[0_0_8px_#00F0D1]"
+                          : i === spStep
+                            ? "bg-[#FE2DA3] shadow-[0_0_10px_#FE2DA3]"
+                            : "bg-white/10 hover:bg-white/20"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
               <Field
-                label="What pro problem can you solve in your sleep?"
-                hint="The thing people already come to you for. The thing you'd do half-asleep, no coffee."
-                value={niche} onChange={setNiche} disabled={streaming}
-                placeholder={'e.g. "Building marketing strategies, managing teams, creating systems..." — or "Honestly, not sure yet"'}
-                chips={[
-                  "Honestly? Not sure yet",
-                  "Meal planning & easy recipes",
-                  "Helping women restart their careers",
-                  "Decluttering & home organization",
-                  "Faith + family life",
-                  "Menopause wellness",
-                ]}
+                key={spStep}
+                label={currentStep.label}
+                hint={currentStep.hint}
+                value={currentStep.value}
+                onChange={currentStep.set}
+                disabled={streaming}
+                placeholder={currentStep.placeholder}
+                chips={currentStep.chips}
               />
-              <Field
-                label="What transformation have YOU personally been through?"
-                hint="Your story is the receipt. What did you walk through and come out the other side of?"
-                value={transformation} onChange={setTransformation} disabled={streaming}
-                placeholder={'e.g. "Starting over at 50, building confidence, leaving corporate..."'}
-                chips={[
-                  "Started over after 50",
-                  "Left corporate, never looked back",
-                  "Rebuilt my confidence post-divorce",
-                  "Survived burnout",
-                  "Empty nest, full reinvention",
-                ]}
-              />
-              <Field
-                label="Describe who you most want to help."
-                hint="Picture one real human. Age, life stage, what's on her plate."
-                value={whoHelp} onChange={setWhoHelp} disabled={streaming}
-                placeholder={'e.g. "A 50-year-old corporate professional ready to start consulting..."'}
-                chips={[
-                  "Gen X woman, mid-career pivot",
-                  "Empty-nester ready for act two",
-                  "Corporate escapee, first-time consultant",
-                  "Mom going back to work after years off",
-                  "Recently divorced, rebuilding income",
-                ]}
-              />
-              <Field
-                label="What's her biggest frustration right now?"
-                hint="The thing that keeps her up at 2am. Be specific — no fluff."
-                value={theirFrustration} onChange={setTheirFrustration} disabled={streaming}
-                placeholder={'e.g. "She knows she has expertise but doesn\u2019t know how to package it..."'}
-                chips={[
-                  "Has the expertise, can't package it",
-                  "Sick of being invisible at work",
-                  "Stuck trading hours for dollars",
-                  "Doesn't know where to even start",
-                  "Tech makes her freeze up",
-                ]}
-              />
-              <Field
-                label="What does she desperately want to achieve?"
-                hint="The thing she'd pay almost anything to make real."
-                value={theirDream} onChange={setTheirDream} disabled={streaming}
-                placeholder={'e.g. "Financial independence, recognition for her expertise, freedom to work from anywhere..."'}
-                chips={[
-                  "Financial independence",
-                  "Recognition for her expertise",
-                  "Freedom to work from anywhere",
-                  "An income that doesn't need her boss",
-                  "Time back with her people",
-                ]}
-              />
-              <Field
-                label="What's the thing that keeps tripping you up?"
-                hint="Be real — this is where most people quit."
-                value={roadblock} onChange={setRoadblock} disabled={streaming}
-                placeholder="e.g. I keep changing my mind every week"
-                chips={[
-                  "I keep changing my niche",
-                  "Tech overwhelms me",
-                  "I feel like I'm too late",
-                  "I don't know what to sell",
-                  "Scared nobody will care",
-                ]}
-              />
-              <Field
-                label="What does a normal day look like for you?"
-                hint="So we don't build a plan you can't actually do."
-                value={day} onChange={setDay} disabled={streaming}
-                placeholder='e.g. "1 hour after the kids are in bed"'
-                chips={[
-                  "30 mins early morning",
-                  "1-2 hours after kids/work",
-                  "Weekends mostly",
-                  "I homeschool — it's chaos",
-                  "I work full-time",
-                ]}
-              />
+
+              {!isLastStep && (
+                <div className="flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSpStep((s) => Math.max(0, s - 1))}
+                    disabled={streaming || spStep === 0}
+                    className="xcel-btn-ghost rounded-xl px-5 py-3 text-xs disabled:opacity-30"
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { if (canAdvance) setSpStep((s) => Math.min(startingPointSteps.length - 1, s + 1)); else setErrorMsg("Give this one a shot before moving on."); }}
+                    disabled={streaming || !canAdvance}
+                    className="xcel-btn-neon group relative flex-1 overflow-hidden rounded-xl px-6 py-4 text-base disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <span className="relative z-10">Next →</span>
+                    <span aria-hidden className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                  </button>
+                </div>
+              )}
             </>
           )}
 
