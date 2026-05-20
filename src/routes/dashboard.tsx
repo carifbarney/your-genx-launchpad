@@ -139,7 +139,7 @@ function Dashboard() {
                 {completedCount === 0 ? "Side A — Track 1" : completedCount === 4 ? "Album complete — go gold" : `${completedCount} of 4 in the can`}
               </span>
             </div>
-            <h1 className="relative inline-block">
+            <h1 className="relative inline-block text-left">
               <span className="sr-only">Xcelerate Ignition Lab</span>
               <span
                 aria-hidden
