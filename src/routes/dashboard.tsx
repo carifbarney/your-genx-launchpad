@@ -18,8 +18,8 @@ export const Route = createFileRoute("/dashboard")({
 type ToolKey = "starting_point" | "product" | "storefront" | "launch_plan";
 
 const VinylRecord = () => (
-  <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" style={{ display: "inline-block", verticalAlign: "-0.125em" }}>
-    <circle cx="12" cy="12" r="11" fill="#0B0B0D" stroke="#111" strokeWidth="0.5" />
+  <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" style={{ display: "inline-block", verticalAlign: "-0.125em", filter: "drop-shadow(0 0 6px #00F0D1) drop-shadow(0 0 12px rgba(0,240,209,0.7))" }}>
+    <circle cx="12" cy="12" r="11" fill="#0B0B0D" stroke="#00F0D1" strokeWidth="0.6" />
     <circle cx="12" cy="12" r="9.2" fill="none" stroke="#2a2a2a" strokeWidth="0.3" />
     <circle cx="12" cy="12" r="7.6" fill="none" stroke="#2a2a2a" strokeWidth="0.3" />
     <circle cx="12" cy="12" r="6.0" fill="none" stroke="#2a2a2a" strokeWidth="0.3" />
