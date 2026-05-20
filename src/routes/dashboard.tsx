@@ -127,7 +127,7 @@ function Dashboard() {
               </span>
             </div>
             <h1 className="text-5xl leading-[0.95] sm:text-6xl">
-              <span className="xcel-chrome-text">All gas.</span>
+              <span className="xcel-neon-pink xcel-neon-pulse font-bold">All gas.</span>
               <br />
               <span className="xcel-neon-pink xcel-neon-pulse">No brakes.</span>
             </h1>
