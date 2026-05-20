@@ -260,6 +260,11 @@ function ToolPanel({
   const [niche, setNiche] = useState(plan?.niche ?? "");
   const [roadblock, setRoadblock] = useState(plan?.roadblock ?? "");
   const [day, setDay] = useState(plan?.day ?? "");
+  // expertise excavation (Stage 1 of starting point)
+  const [transformation, setTransformation] = useState((plan as PlanRow & { transformation?: string | null })?.transformation ?? "");
+  const [whoHelp, setWhoHelp] = useState((plan as PlanRow & { who_help?: string | null })?.who_help ?? "");
+  const [theirFrustration, setTheirFrustration] = useState((plan as PlanRow & { their_frustration?: string | null })?.their_frustration ?? "");
+  const [theirDream, setTheirDream] = useState((plan as PlanRow & { their_dream?: string | null })?.their_dream ?? "");
   // product
   const [productNotes, setProductNotes] = useState("");
   // storefront
