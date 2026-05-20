@@ -805,13 +805,13 @@ function BuildItWithAI({ output, plan }: { output: string; plan: PlanRow }) {
   };
 
   return (
-    <div className="mt-8 rounded-2xl border-2 border-dashed border-[oklch(0.62_0.27_348/0.4)] bg-[oklch(0.62_0.27_348/0.05)] p-6">
+    <div className="mt-8 rounded-2xl border-2 border-dashed border-[#FE2DA3]/50 bg-[#FE2DA3]/[0.06] p-6 shadow-[0_0_24px_rgba(254,45,163,0.12)]">
       <div className="mb-4 flex items-start gap-3">
-        <span className="text-3xl">🚀</span>
+        <span className="text-3xl">🎸</span>
         <div>
-          <h3 className="text-xl font-extrabold text-foreground">Now let's actually BUILD it</h3>
-          <p className="mt-1 text-base text-muted-foreground">
-            Pick your AI helper below. In preview, outside AI sites block automatic opening, so this safely copies your prompt first.
+          <h3 className="text-2xl tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>Now cut the record</h3>
+          <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">
+            Pick your AI helper below. In preview, outside sites don't open automatically — we copy the prompt first so you can paste it.
           </p>
         </div>
       </div>
@@ -821,27 +821,27 @@ function BuildItWithAI({ output, plan }: { output: string; plan: PlanRow }) {
             key={tool.name}
             type="button"
             onClick={() => copyForTool(tool.name)}
-            className="rounded-xl border-2 border-border bg-white p-4 text-left text-slate-900 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[oklch(0.62_0.27_348)] hover:shadow-md"
+            className="rounded-xl border border-white/10 bg-black/50 p-4 text-left text-[#F5F2EC] backdrop-blur transition-all hover:-translate-y-0.5 hover:border-[#FE2DA3] hover:shadow-[0_0_24px_rgba(254,45,163,0.35)]"
           >
-            <div className="flex items-center gap-2 text-lg font-extrabold"><span>{tool.emoji}</span>{tool.name}</div>
-            <p className="mt-1 text-sm font-semibold text-slate-600">{tool.note}</p>
-            <p className="mt-3 text-base font-bold text-[oklch(0.62_0.27_348)]">
+            <div className="flex items-center gap-2 text-lg tracking-wide" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}><span>{tool.emoji}</span>{tool.name}</div>
+            <p className="mt-1 text-xs font-semibold normal-case tracking-normal text-[#F5F2EC]/60">{tool.note}</p>
+            <p className="mt-3 font-mono text-xs font-bold uppercase tracking-widest text-[#FE2DA3]">
               {copiedTool === tool.name ? "✓ Prompt copied" : "Copy prompt"}
             </p>
-            <p className="mt-1 text-sm text-slate-500">Then open {tool.url} in a normal browser tab and paste.</p>
+            <p className="mt-1 text-xs normal-case tracking-normal text-[#F5F2EC]/50">Then open {tool.url} in a fresh tab and paste.</p>
           </button>
         ))}
       </div>
       <div className="mt-3 flex flex-wrap gap-3">
         <button
           onClick={copyPrompt}
-          className="inline-flex items-center gap-2 rounded-xl border-2 border-border bg-background px-5 py-3 text-base font-bold transition hover:border-foreground/40"
+          className="xcel-btn-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-xs"
         >
           {copied ? "✓ Copied prompt!" : "📋 Copy the prompt"}
         </button>
       </div>
-      <p className="mt-4 text-sm text-muted-foreground">
-        💡 This avoids the preview-window error. After publishing, you can still use the same copy-and-paste flow from the live site.
+      <p className="mt-4 text-xs normal-case tracking-normal text-[#F5F2EC]/55">
+        💡 This avoids preview-window errors. After publishing, the same copy-and-paste flow works on the live site.
       </p>
     </div>
   );
@@ -863,13 +863,13 @@ function StorefrontWalkthrough() {
   ];
   return (
     <div className="mt-8 space-y-6">
-      <div className="rounded-2xl border-2 border-dashed border-[oklch(0.55_0.22_295/0.4)] bg-[oklch(0.55_0.22_295/0.05)] p-6">
+      <div className="rounded-2xl border-2 border-dashed border-[#8A2BE2]/50 bg-[#8A2BE2]/[0.06] p-6 shadow-[0_0_24px_rgba(138,43,226,0.14)]">
         <div className="mb-4 flex items-start gap-3">
           <span className="text-3xl">📺</span>
           <div>
-            <h3 className="text-xl font-extrabold text-foreground">Watch someone set it up first</h3>
-            <p className="mt-1 text-base text-muted-foreground">
-              Seeing it done makes everything click. Pick the platform you're using, watch once start to finish, then come back and do yours.
+            <h3 className="text-2xl tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>Watch the dress rehearsal</h3>
+            <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">
+              Seeing it done once makes the whole thing click. Watch start to finish, then come back and do yours.
             </p>
           </div>
         </div>
@@ -880,7 +880,7 @@ function StorefrontWalkthrough() {
               href={`https://www.youtube.com/watch?v=${v.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="group block overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+              className="group block overflow-hidden rounded-xl border border-white/10 bg-black/60 backdrop-blur transition-all hover:-translate-y-0.5 hover:border-[#8A2BE2]/70 hover:shadow-[0_0_24px_rgba(138,43,226,0.4)]"
             >
               <div className="relative aspect-video bg-black">
                 <img
@@ -893,8 +893,8 @@ function StorefrontWalkthrough() {
                   }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors group-hover:bg-black/20">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform group-hover:scale-110">
-                    <svg className="ml-1 h-6 w-6 text-red-600" viewBox="0 0 24 24" fill="currentColor">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 shadow-[0_0_24px_rgba(254,45,163,0.55)] transition-transform group-hover:scale-110">
+                    <svg className="ml-1 h-6 w-6 text-[#FE2DA3]" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M8 5v14l11-7z" />
                     </svg>
                   </div>
@@ -902,32 +902,32 @@ function StorefrontWalkthrough() {
               </div>
               <div className="flex items-center justify-between p-4">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{v.platform}</p>
-                  <p className="mt-1 text-sm font-semibold text-foreground">{v.title}</p>
+                  <p className="xcel-kicker text-[#00F0D1]">{v.platform}</p>
+                  <p className="mt-1 text-sm font-semibold normal-case tracking-normal text-[#F5F2EC]">{v.title}</p>
                 </div>
-                <span className="rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 transition-colors group-hover:bg-red-100">Watch on YouTube →</span>
+                <span className="rounded-full border border-[#FE2DA3]/40 bg-[#FE2DA3]/10 px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-[#FE2DA3]">▶ YouTube</span>
               </div>
             </a>
           ))}
         </div>
       </div>
 
-      <div className="rounded-2xl border-2 border-dashed border-[oklch(0.65_0.22_35/0.4)] bg-[oklch(0.65_0.22_35/0.05)] p-6">
+      <div className="rounded-2xl border-2 border-dashed border-[#00F0D1]/50 bg-[#00F0D1]/[0.05] p-6 shadow-[0_0_24px_rgba(0,240,209,0.12)]">
         <div className="mb-5 flex items-start gap-3">
           <span className="text-3xl">🛠️</span>
           <div>
-            <h3 className="text-xl font-extrabold text-foreground">The 6-step setup, plain and simple</h3>
-            <p className="mt-1 text-base text-muted-foreground">Knock these out in one sitting. ~45 minutes total.</p>
+            <h3 className="text-2xl tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>The 6-step setup, no jargon</h3>
+            <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">Knock these out in one sitting. About 45 minutes, start to finish.</p>
           </div>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {steps.map((s) => (
-            <div key={s.n} className="rounded-xl border border-border bg-white p-4 shadow-sm">
+            <div key={s.n} className="rounded-xl border border-white/10 bg-black/40 p-4 backdrop-blur">
               <div className="flex items-start gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-extrabold text-white" style={{ background: "var(--gradient-brand)" }}>{s.n}</span>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-extrabold text-white shadow-[0_0_12px_rgba(254,45,163,0.5)]" style={{ background: "linear-gradient(135deg, #FE2DA3, #8A2BE2)" }}>{s.n}</span>
                 <div>
-                  <p className="text-base font-bold text-slate-900">{s.t}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-slate-600">{s.d}</p>
+                  <p className="text-base font-bold normal-case tracking-normal text-[#F5F2EC]" style={{ fontFamily: "var(--font-sub)" }}>{s.t}</p>
+                  <p className="mt-1 text-sm leading-relaxed normal-case tracking-normal text-[#F5F2EC]/70">{s.d}</p>
                 </div>
               </div>
             </div>
@@ -1007,12 +1007,12 @@ function LaunchCalendar({ output }: { output: string }) {
   return (
     <div className="mt-8 space-y-6">
       {days.length > 0 && (
-        <div className="rounded-2xl border-2 border-dashed border-[oklch(0.62_0.27_348/0.4)] bg-[oklch(0.62_0.27_348/0.05)] p-6">
+        <div className="rounded-2xl border-2 border-dashed border-[#FE2DA3]/50 bg-[#FE2DA3]/[0.06] p-6 shadow-[0_0_24px_rgba(254,45,163,0.14)]">
           <div className="mb-5 flex items-start gap-3">
             <span className="text-3xl">📅</span>
             <div>
-              <h3 className="text-xl font-extrabold text-foreground">Your 30-day calendar — at a glance</h3>
-              <p className="mt-1 text-base text-muted-foreground">One square = one day. Click any day to expand it. Check 'em off as you go.</p>
+              <h3 className="text-2xl tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>Your 30-day tour calendar</h3>
+              <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">One square = one day. Click any day to expand it. Check 'em off as you knock 'em out.</p>
             </div>
           </div>
           <CalendarGrid days={days} />
@@ -1020,19 +1020,19 @@ function LaunchCalendar({ output }: { output: string }) {
       )}
 
       {platform && basics[platform] && (
-        <div className="rounded-2xl border-2 border-dashed border-[oklch(0.65_0.22_35/0.4)] bg-[oklch(0.65_0.22_35/0.05)] p-6">
+        <div className="rounded-2xl border-2 border-dashed border-[#00F0D1]/50 bg-[#00F0D1]/[0.05] p-6 shadow-[0_0_24px_rgba(0,240,209,0.12)]">
           <div className="mb-4 flex items-start gap-3">
             <span className="text-3xl">📱</span>
             <div>
-              <h3 className="text-xl font-extrabold text-foreground">{basics[platform].title}</h3>
-              <p className="mt-1 text-base text-muted-foreground">No assumptions. Here's exactly what to tap.</p>
+              <h3 className="text-2xl tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>{basics[platform].title}</h3>
+              <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">No assumptions. Here's exactly which button to push.</p>
             </div>
           </div>
           <ol className="space-y-3">
             {basics[platform].steps.map((s, i) => (
-              <li key={i} className="flex items-start gap-3 rounded-xl border border-border bg-white p-4">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-white" style={{ background: "var(--gradient-brand)" }}>{i + 1}</span>
-                <span className="text-base leading-relaxed text-slate-800">{splitBold(s)}</span>
+              <li key={i} className="flex items-start gap-3 rounded-xl border border-white/10 bg-black/40 p-4 backdrop-blur">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-white shadow-[0_0_12px_rgba(254,45,163,0.5)]" style={{ background: "linear-gradient(135deg, #FE2DA3, #8A2BE2)" }}>{i + 1}</span>
+                <span className="text-base leading-relaxed normal-case tracking-normal text-[#F5F2EC]/85">{splitBold(s)}</span>
               </li>
             ))}
           </ol>
@@ -1058,24 +1058,24 @@ function CalendarGrid({ days }: { days: { day: number; text: string }[] }) {
               type="button"
               onClick={() => setOpen(isOpen ? null : n)}
               disabled={!has}
-              className={`relative aspect-square rounded-xl border-2 text-sm font-bold transition-all ${
+              className={`relative aspect-square rounded-xl border text-sm font-bold transition-all ${
                 isOpen
-                  ? "border-transparent text-white shadow-md"
+                  ? "border-transparent text-white shadow-[0_0_24px_rgba(254,45,163,0.6)]"
                   : has
-                  ? "border-border bg-white text-slate-900 hover:-translate-y-0.5 hover:border-[oklch(0.62_0.27_348)] hover:shadow-sm"
-                  : "cursor-not-allowed border-border/40 bg-background/40 text-muted-foreground/50"
+                  ? "border-white/15 bg-black/60 text-[#F5F2EC] hover:-translate-y-0.5 hover:border-[#FE2DA3] hover:shadow-[0_0_16px_rgba(254,45,163,0.4)]"
+                  : "cursor-not-allowed border-white/5 bg-black/20 text-white/20"
               }`}
-              style={isOpen ? { background: "var(--gradient-brand)" } : undefined}
+              style={isOpen ? { background: "linear-gradient(135deg, #FE2DA3, #8A2BE2)" } : undefined}
             >
-              <span className="absolute left-2 top-1.5 text-[10px] font-bold uppercase opacity-70">Day</span>
+              <span className="absolute left-2 top-1.5 font-mono text-[9px] font-bold uppercase tracking-widest opacity-70">Day</span>
               <span className="text-lg">{n}</span>
             </button>
           );
         })}
       </div>
       {open !== null && map.has(open) && (
-        <div className="mt-4 rounded-xl border-2 border-[oklch(0.62_0.27_348/0.4)] bg-white p-5 shadow-sm xcel-fade-up">
-          <p className="text-xs font-extrabold uppercase tracking-widest text-[oklch(0.55_0.22_295)]">Day {open}</p>
+        <div className="mt-4 rounded-xl border-2 border-[#FE2DA3]/50 p-5 shadow-[0_0_24px_rgba(254,45,163,0.20)] xcel-fade-up" style={{ background: "#F5F2EC" }}>
+          <p className="font-mono text-[10px] font-extrabold uppercase tracking-widest text-[#8A2BE2]">Day {open}</p>
           <p className="mt-2 text-base leading-relaxed text-slate-900">{splitBold(map.get(open)!)}</p>
         </div>
       )}
