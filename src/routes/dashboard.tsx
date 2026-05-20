@@ -28,7 +28,7 @@ const VinylRecord = () => (
   </svg>
 );
 
-const TOOLS: { key: ToolKey; num: number; emoji: React.ReactNode; title: string; subtitle: string }[] = [
+const TOOLS: { key: ToolKey; num: number; emoji: ReactNode; title: string; subtitle: string }[] = [
   { key: "starting_point", num: 1, emoji: "⚡",            title: "Find Your Lane",   subtitle: "Get unstuck in 60 seconds" },
   { key: "product",        num: 2, emoji: <VinylRecord />, title: "Build Your Thing", subtitle: "A real product. No maybes." },
   { key: "storefront",     num: 3, emoji: "📼",            title: "Open Your Shop",   subtitle: "Beacons in one sitting" },
