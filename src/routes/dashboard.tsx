@@ -546,7 +546,15 @@ function ToolPanel({
           <button type="submit" disabled={streaming || disabled}
             className="xcel-btn-neon group relative w-full overflow-hidden rounded-xl px-6 py-4 text-base disabled:cursor-not-allowed disabled:opacity-60">
             <span className="relative z-10">
-              {streaming ? "⚡ Recording…" : disabled ? "🚫 Out of runs for today" : output ? "↺ Run it again" : "⚡ Drop the needle"}
+              {streaming
+                ? "⚡ Recording…"
+                : disabled
+                  ? "🚫 Out of runs for today"
+                  : output
+                    ? "↺ Run it again"
+                    : tool === "starting_point"
+                      ? "DIG DEEPER →"
+                      : "⚡ Drop the needle"}
             </span>
             {!streaming && (
               <span aria-hidden className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
