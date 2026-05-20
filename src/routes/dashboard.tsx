@@ -1075,7 +1075,7 @@ function BlueprintCard({
     const CARD_RADIUS = 10;
 
     // Estimate height of a section so we can draw the card behind it.
-    const measureSection = (s: { title: string; body: string }): number => {
+    const measureSection = (s: { title: string | null; body: string }): number => {
       let h = CARD_PAD_Y;
       const innerW = maxW - CARD_PAD_X * 2;
       if (s.title) {
