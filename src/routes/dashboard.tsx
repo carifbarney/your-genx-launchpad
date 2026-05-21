@@ -361,7 +361,7 @@ function ToolPanel({
 
     type GenInput =
       | { tool: "starting_point"; niche: string; roadblock: string; day: string; transformation: string; whoHelp: string; theirFrustration: string; theirDream: string }
-      | { tool: "product"; productNotes: string }
+      | { tool: "product"; productNotes: string; productType: "pdf_guide" | "checklist" }
       | { tool: "storefront"; storefrontNotes: string }
       | { tool: "launch_plan"; hoursPerDay: string; platformPreference: string };
     let payload: GenInput;
@@ -372,7 +372,7 @@ function ToolPanel({
       }
       payload = { tool: "starting_point", niche, roadblock, day, transformation, whoHelp, theirFrustration, theirDream };
     } else if (tool === "product") {
-      payload = { tool: "product", productNotes };
+      payload = { tool: "product", productNotes, productType };
     } else if (tool === "storefront") {
       payload = { tool: "storefront", storefrontNotes };
     } else {
