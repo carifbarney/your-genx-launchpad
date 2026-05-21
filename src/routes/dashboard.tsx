@@ -872,7 +872,6 @@ function ToolPanel({
               ) : tool !== "product" ? (
                 <OutputCards output={output} streaming={streaming} />
               ) : null}
-
               {!streaming && tool === "product" && <BuildItWithAI output={output} plan={plan} />}
               {!streaming && tool === "storefront" && <StorefrontWalkthrough />}
               {!streaming && tool === "launch_plan" && <LaunchCalendar output={output} />}
