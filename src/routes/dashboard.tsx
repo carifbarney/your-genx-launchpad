@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import xcelerateLogo from "@/assets/xcelerate-logo.png";
 import { jsPDF } from "jspdf";
 import { generateXcelerateResponse, getRemainingRequests, getUserPlan, clearUserPlan } from "@/lib/xcelerate.functions";
+import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Xcelerate — Your Launch System" }] }),
@@ -1669,91 +1670,201 @@ function splitBold(line: string): ReactNode {
 
 // ===== Build-it-with-AI launchers (Product step) =====
 function BuildItWithAI({ output, plan }: { output: string; plan: PlanRow }) {
+  if (!output) return null;
   const niche = plan?.niche ?? "";
-  const prompt = [
-    `You are helping me actually BUILD the digital product described below. I'm a beginner — walk me through it step by step, write the actual content for me, and don't assume technical knowledge.`,
+  const whoHelp = plan?.who_help ?? "";
+  const frustration = plan?.their_frustration ?? "";
+  const dream = plan?.their_dream ?? "";
+
+  const audienceBlock = [
+    niche && `NICHE: ${niche}`,
+    whoHelp && `WHO I HELP: ${whoHelp}`,
+    frustration && `THEIR FRUSTRATION: ${frustration}`,
+    dream && `THEIR DREAM: ${dream}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const writingPrompt = [
+    `You are my expert ghostwriter. In ONE single response, write a complete, polished digital product end-to-end. Do not stop to ask questions. Do not give an outline-only — write the full thing.`,
     ``,
-    `MY NICHE: ${niche || "(see below)"}`,
+    `AUDIENCE & PROMISE:`,
+    audienceBlock || "(see blueprint below)",
     ``,
-    `THE PRODUCT BLUEPRINT MY COACH GAVE ME:`,
+    `THE PRODUCT BLUEPRINT:`,
     output,
     ``,
-    `START BY: writing the full first section/module of this product for me, in a friendly, conversational voice my audience will love. Then ask me one question before continuing to section 2.`,
+    `DELIVER, IN THIS ORDER, IN ONE RESPONSE:`,
+    `1. COVER PAGE COPY — title, subtitle, one-line promise, author placeholder.`,
+    `2. FULL OUTLINE — chapter list with one-sentence summaries.`,
+    `3. FULL CHAPTERS — write every chapter in full, 300–500 words each, friendly conversational voice, real examples, no filler.`,
+    `4. WORKSHEETS / CHECKLISTS — at least one per chapter, ready to fill in.`,
+    `5. CLOSING PAGE — short pep talk + next-step CTA.`,
+    ``,
+    `When you are completely done writing every chapter and worksheet, end your message with exactly this line on its own:`,
+    `WRITING COMPLETE — ready for Step 2: Design Prompt`,
   ].join("\n");
 
-  const tools = [
-    { name: "ChatGPT", emoji: "💬", url: "chatgpt.com", note: "Best beginner choice" },
-    { name: "Claude", emoji: "🧠", url: "claude.ai", note: "Great for long drafts" },
-    { name: "Gemini", emoji: "✨", url: "gemini.google.com", note: "Good Google option" },
+  const designPrompt = [
+    `Take EVERYTHING you just wrote above in this same conversation and design it as a professional, beautiful, downloadable PDF ebook.`,
+    ``,
+    `Build it as a single self-contained HTML document inside an Artifact (so I can preview and print/save as PDF directly from the Artifact panel).`,
+    ``,
+    `REQUIREMENTS:`,
+    `- A real cover page (title, subtitle, author placeholder, on-brand hero block).`,
+    `- A table of contents with chapter titles and page numbers.`,
+    `- Dedicated chapter pages with clear H1/H2 hierarchy, generous spacing, pull quotes where helpful.`,
+    `- Dedicated worksheet/checklist pages with form lines, checkboxes, and clear instructions.`,
+    `- A consistent color palette (pick 3–4 harmonious colors that match the tone of the audience: ${whoHelp || niche || "this niche"}) applied to headings, accents, dividers, and worksheet boxes.`,
+    `- A clean, modern serif or sans pairing — readable on screen and in print.`,
+    `- Page break styles so it prints to PDF cleanly (use CSS @page and page-break-after: always between sections).`,
+    `- Embed everything inline (CSS in <style>, no external images, no external fonts that require network). Use Google Fonts via <link> only if necessary.`,
+    ``,
+    `Output the complete HTML document in a single Artifact. Nothing else.`,
+  ].join("\n");
+
+  const [copiedWrite, setCopiedWrite] = useState(false);
+  const [copiedDesign, setCopiedDesign] = useState(false);
+
+  const copyWriting = async () => {
+    await navigator.clipboard.writeText(writingPrompt);
+    setCopiedWrite(true);
+    setTimeout(() => setCopiedWrite(false), 2000);
+  };
+  const copyDesign = async () => {
+    await navigator.clipboard.writeText(designPrompt);
+    setCopiedDesign(true);
+    setTimeout(() => setCopiedDesign(false), 2000);
+  };
+
+  const steps = [
+    "Copy the Writing Prompt below.",
+    "Open Claude.ai in a new tab and paste it into a fresh conversation. Wait until Claude finishes — it will end with: WRITING COMPLETE — ready for Step 2: Design Prompt.",
+    "Copy the Design Prompt and paste it into the SAME conversation. Claude will design the full PDF as an Artifact.",
+    "In the Artifact panel on the right, click the menu → Print → Save as PDF. That's your finished ebook.",
+    "Come back here and head to the Storefront step to set up your shop and upload your PDF.",
   ];
 
-  const [copied, setCopied] = useState(false);
-  const [copiedTool, setCopiedTool] = useState<string | null>(null);
-  const copyPrompt = async () => {
-    await navigator.clipboard.writeText(prompt);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const copyForTool = async (toolName: string) => {
-    await navigator.clipboard.writeText(prompt);
-    setCopiedTool(toolName);
-    setTimeout(() => setCopiedTool(null), 3000);
-  };
-
   return (
-    <div className="mt-8 rounded-2xl border-2 border-dashed border-[#FE2DA3]/50 bg-[#FE2DA3]/[0.06] p-6 shadow-[0_0_24px_rgba(254,45,163,0.12)]">
-      <div className="mb-4 flex items-start gap-3">
-        <span className="text-3xl">🎸</span>
-        <div>
-          <h3
-            className="text-2xl tracking-wide text-[#F5F2EC]"
-            style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}
-          >
-            Now cut the record
-          </h3>
-          <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">
-            Pick your AI helper below. In preview, outside sites don't open automatically — we copy the prompt first so
-            you can paste it.
-          </p>
-        </div>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        {tools.map((tool) => (
-          <button
-            key={tool.name}
-            type="button"
-            onClick={() => copyForTool(tool.name)}
-            className="rounded-xl border border-white/10 bg-black/50 p-4 text-left text-[#F5F2EC] backdrop-blur transition-all hover:-translate-y-0.5 hover:border-[#FE2DA3] hover:shadow-[0_0_24px_rgba(254,45,163,0.35)]"
-          >
-            <div
-              className="flex items-center gap-2 text-lg tracking-wide"
+    <div className="mt-8 space-y-6">
+      <div className="rounded-2xl border-2 border-dashed border-[#FE2DA3]/50 bg-[#FE2DA3]/[0.06] p-6 shadow-[0_0_24px_rgba(254,45,163,0.12)]">
+        <div className="mb-5 flex items-start gap-3">
+          <span className="text-3xl">✍️</span>
+          <div>
+            <h3
+              className="text-2xl tracking-wide text-[#F5F2EC]"
               style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}
             >
-              <span>{tool.emoji}</span>
-              {tool.name}
-            </div>
-            <p className="mt-1 text-xs font-semibold normal-case tracking-normal text-[#F5F2EC]/60">{tool.note}</p>
-            <p className="mt-3 font-mono text-xs font-bold uppercase tracking-widest text-[#FE2DA3]">
-              {copiedTool === tool.name ? "✓ Prompt copied" : "Copy prompt"}
+              Step 1 — Writing prompt (Claude)
+            </h3>
+            <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">
+              Paste this into a fresh Claude.ai chat. Claude writes the full ebook in one go.
             </p>
-            <p className="mt-1 text-xs normal-case tracking-normal text-[#F5F2EC]/50">
-              Then open {tool.url} in a fresh tab and paste.
-            </p>
+          </div>
+        </div>
+        <Textarea
+          readOnly
+          value={writingPrompt}
+          className="min-h-[220px] resize-y border-white/10 bg-black/60 font-mono text-xs leading-relaxed text-[#F5F2EC]"
+        />
+        <div className="mt-3 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={copyWriting}
+            className="xcel-btn-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-xs"
+          >
+            {copiedWrite ? "✓ Copied writing prompt" : "📋 Copy writing prompt"}
           </button>
-        ))}
+          <a
+            href="https://claude.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#FE2DA3]/60 bg-[#FE2DA3]/10 px-5 py-3 text-xs font-bold uppercase tracking-widest text-[#FE2DA3] transition-all hover:-translate-y-0.5 hover:bg-[#FE2DA3]/20"
+          >
+            🧠 Open Claude.ai
+          </a>
+        </div>
       </div>
-      <div className="mt-3 flex flex-wrap gap-3">
-        <button
-          onClick={copyPrompt}
-          className="xcel-btn-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-xs"
-        >
-          {copied ? "✓ Copied prompt!" : "📋 Copy the prompt"}
-        </button>
+
+      <div className="rounded-2xl border-2 border-dashed border-[#00F0D1]/50 bg-[#00F0D1]/[0.06] p-6 shadow-[0_0_24px_rgba(0,240,209,0.12)]">
+        <div className="mb-5 flex items-start gap-3">
+          <span className="text-3xl">🎨</span>
+          <div>
+            <h3
+              className="text-2xl tracking-wide text-[#F5F2EC]"
+              style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}
+            >
+              Step 2 — Design prompt (Claude)
+            </h3>
+            <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">
+              Only after Claude says “WRITING COMPLETE”. Paste this into the SAME chat to get the designed PDF.
+            </p>
+          </div>
+        </div>
+        <Textarea
+          readOnly
+          value={designPrompt}
+          className="min-h-[220px] resize-y border-white/10 bg-black/60 font-mono text-xs leading-relaxed text-[#F5F2EC]"
+        />
+        <div className="mt-3 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={copyDesign}
+            className="xcel-btn-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-xs"
+          >
+            {copiedDesign ? "✓ Copied design prompt" : "📋 Copy design prompt"}
+          </button>
+          <a
+            href="https://claude.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#00F0D1]/60 bg-[#00F0D1]/10 px-5 py-3 text-xs font-bold uppercase tracking-widest text-[#00F0D1] transition-all hover:-translate-y-0.5 hover:bg-[#00F0D1]/20"
+          >
+            🧠 Open Claude.ai
+          </a>
+        </div>
       </div>
-      <p className="mt-4 text-xs normal-case tracking-normal text-[#F5F2EC]/55">
-        💡 This avoids preview-window errors. After publishing, the same copy-and-paste flow works on the live site.
-      </p>
+
+      <div
+        className="rounded-2xl border-2 border-[#0a0a0a]/10 p-6 shadow-[0_4px_24px_rgba(0,0,0,0.08)]"
+        style={{ background: "#F5F2EC" }}
+      >
+        <div className="mb-5 flex items-start gap-3">
+          <span className="text-3xl">🛠️</span>
+          <div>
+            <h3
+              className="text-2xl tracking-wide text-[#0a0a0a]"
+              style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}
+            >
+              How to actually do this in 15 minutes
+            </h3>
+            <p className="mt-1 text-sm normal-case tracking-normal text-[#0a0a0a]/70">
+              Follow these 5 steps in order. Don't skip step 2 — wait for Claude to finish writing first.
+            </p>
+          </div>
+        </div>
+        <ol className="space-y-3">
+          {steps.map((s, i) => (
+            <li
+              key={i}
+              className="flex items-start gap-3 rounded-xl border border-[#0a0a0a]/10 bg-white/70 p-4"
+            >
+              <span
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-white shadow-[0_0_12px_rgba(254,45,163,0.5)]"
+                style={{ background: "linear-gradient(135deg, #FE2DA3, #8A2BE2)" }}
+              >
+                {i + 1}
+              </span>
+              <span className="text-sm leading-relaxed normal-case tracking-normal text-[#0a0a0a]/85">{s}</span>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-4 rounded-lg border border-[#0a0a0a]/10 bg-white/60 px-4 py-3 text-xs normal-case tracking-normal text-[#0a0a0a]/70">
+          💡 Heads up: Claude's free tier works, but <strong>Claude Pro ($20/mo)</strong> gives the best results for
+          long ebooks and Artifact designs. You only need it for the one month you're building your product — cancel
+          anytime after.
+        </p>
+      </div>
     </div>
   );
 }
