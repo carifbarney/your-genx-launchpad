@@ -196,6 +196,7 @@ function buildUserMessage(input: z.infer<typeof inputSchema>, plan: Record<strin
     if (roadblock) parts.push(`Their Roadblock:\n${roadblock}`);
     if (day) parts.push(`Their Daily Reality:\n${day}`);
     if (startingPoint) parts.push(`Their Starting Point Plan (already given):\n${startingPoint}`);
+    parts.push(`Product Type:\n${input.productType}`);
     parts.push(`Any extra context from the user about the product they want:\n${input.productNotes || "(none — pick the strongest product for them)"}`);
   } else if (input.tool === "storefront") {
     if (niche) parts.push(`Their Niche:\n${niche}`);
