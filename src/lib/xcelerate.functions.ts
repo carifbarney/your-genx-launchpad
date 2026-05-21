@@ -51,6 +51,7 @@ Your job is to help her CREATE a ROBUST, SELLABLE PDF GUIDE OR EBOOK — a real,
 Scope rules: The guide should be 15–30 pages of real value — a clear transformation, a step-by-step framework, worksheets/checklists/templates baked in. Examples of the right depth: "The Perimenopause Reset Guide" (symptom-to-solution chapters + daily ritual checklist + grocery list template); "The Homeschool Morning Flow Playbook" (a repeatable morning framework + weekly planner pages + sample schedules for 3 ages); "The Affiliate Content Starter Kit" (a content pillar framework + 30 fill-in-the-blank hook templates + a posting schedule).
 
 REQUIRED SECTIONS (use these exact bold headers, in order):
+Tailor every section below specifically for this product type: [productType]. For pdf_guide: think chapters, frameworks, stories, depth. For checklist: think structured pages, numbered fields, checkboxes, daily/weekly trackers.
 **Your Guide** — name the specific guide (give it a branded working title in quotes), describe what it does in ONE plain sentence, name the ONE ideal customer, and name the ONE painful problem it solves. Pick ONE — don't list options.
 **What's Inside (The Table Of Contents)** — a numbered list of 6–10 chapters/sections with named titles (e.g. "1. The Real Reason You're Stuck", "2. The 3-Part Reset Framework", "3. Your 7-Day Quick Start", "4. Worksheet: Map Your Triggers"). Each one line. Include at least 2 worksheets/checklists/templates by name.
 **Why People Will Actually Buy This** — one short paragraph. Name the specific frustration, the transformation they get from reading it, and the one-sentence pitch she'll use to describe it.
@@ -112,6 +113,7 @@ const startingPointSchema = z.object({
 const productSchema = z.object({
   tool: z.literal("product"),
   productNotes: z.string().trim().max(1000).default(""),
+  productType: z.string().trim().max(50).default("pdf_guide"),
 });
 
 const storefrontSchema = z.object({
@@ -195,6 +197,7 @@ function buildUserMessage(input: z.infer<typeof inputSchema>, plan: Record<strin
     if (roadblock) parts.push(`Their Roadblock:\n${roadblock}`);
     if (day) parts.push(`Their Daily Reality:\n${day}`);
     if (startingPoint) parts.push(`Their Starting Point Plan (already given):\n${startingPoint}`);
+    parts.push(`Product Type:\n${input.productType}`);
     parts.push(`Any extra context from the user about the product they want:\n${input.productNotes || "(none — pick the strongest product for them)"}`);
   } else if (input.tool === "storefront") {
     if (niche) parts.push(`Their Niche:\n${niche}`);

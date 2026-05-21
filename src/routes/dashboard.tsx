@@ -283,6 +283,7 @@ function ToolPanel({
   const [theirDream, setTheirDream] = useState(plan?.their_dream ?? "");
   // product
   const [productNotes, setProductNotes] = useState("");
+  const [productType, setProductType] = useState<"pdf_guide" | "checklist">("pdf_guide");
   // storefront
   const [storefrontNotes, setStorefrontNotes] = useState("");
   // launch plan
@@ -360,7 +361,7 @@ function ToolPanel({
 
     type GenInput =
       | { tool: "starting_point"; niche: string; roadblock: string; day: string; transformation: string; whoHelp: string; theirFrustration: string; theirDream: string }
-      | { tool: "product"; productNotes: string }
+      | { tool: "product"; productNotes: string; productType: "pdf_guide" | "checklist" }
       | { tool: "storefront"; storefrontNotes: string }
       | { tool: "launch_plan"; hoursPerDay: string; platformPreference: string };
     let payload: GenInput;
@@ -371,7 +372,7 @@ function ToolPanel({
       }
       payload = { tool: "starting_point", niche, roadblock, day, transformation, whoHelp, theirFrustration, theirDream };
     } else if (tool === "product") {
-      payload = { tool: "product", productNotes };
+      payload = { tool: "product", productNotes, productType };
     } else if (tool === "storefront") {
       payload = { tool: "storefront", storefrontNotes };
     } else {
@@ -508,6 +509,7 @@ function ToolPanel({
           {tool === "product" && (
             <>
               <ContextSummary plan={plan} show={["niche", "starting_point_output"]} />
+              <ProductTypeSelector value={productType} onChange={setProductType} disabled={streaming} />
               <Field
                 label="Any wishes for your product? (totally optional)"
                 hint="Skip this and we'll pick what fits you best."
@@ -656,7 +658,7 @@ function ToolPanel({
                 <OutputCards output={output} streaming={streaming} />
               )}
               {!streaming && tool === "product" && (
-                <BuildItWithAI output={output} plan={plan} />
+                <ProductLaunchpad output={output} plan={plan} productType={productType} />
               )}
               {!streaming && tool === "storefront" && (
                 <StorefrontWalkthrough />
@@ -1361,79 +1363,445 @@ function splitBold(line: string): ReactNode {
   );
 }
 
-// ===== Build-it-with-AI launchers (Product step) =====
-function BuildItWithAI({ output, plan }: { output: string; plan: PlanRow }) {
-  const niche = plan?.niche ?? "";
-  const prompt = [
-    `You are helping me actually BUILD the digital product described below. I'm a beginner — walk me through it step by step, write the actual content for me, and don't assume technical knowledge.`,
-    ``,
-    `MY NICHE: ${niche || "(see below)"}`,
-    ``,
-    `THE PRODUCT BLUEPRINT MY COACH GAVE ME:`,
-    output,
-    ``,
-    `START BY: writing the full first section/module of this product for me, in a friendly, conversational voice my audience will love. Then ask me one question before continuing to section 2.`,
-  ].join("\n");
+// ===== Product type selector (chip-style cards) =====
+function ProductTypeSelector({
+  value, onChange, disabled,
+}: {
+  value: "pdf_guide" | "checklist";
+  onChange: (v: "pdf_guide" | "checklist") => void;
+  disabled?: boolean;
+}) {
+  const options: { key: "pdf_guide" | "checklist"; emoji: string; title: string; subtitle: string }[] = [
+    { key: "pdf_guide", emoji: "📄", title: "PDF Guide / Ebook", subtitle: "Chapters, frameworks, real content" },
+    { key: "checklist", emoji: "📋", title: "Checklist / Workbook", subtitle: "Printable pages with fill-in fields" },
+  ];
+  return (
+    <div>
+      <p className="mb-3 font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#00F0D1]/90">Pick your product format</p>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {options.map((o) => {
+          const active = value === o.key;
+          return (
+            <button
+              key={o.key}
+              type="button"
+              disabled={disabled}
+              onClick={() => onChange(o.key)}
+              className={`group relative overflow-hidden rounded-2xl border p-4 text-left transition-all duration-300 disabled:opacity-60 ${
+                active
+                  ? "-translate-y-0.5 border-[#FE2DA3]/60 bg-[#141418] shadow-[0_0_24px_rgba(254,45,163,0.35)]"
+                  : "border-white/10 bg-black/40 backdrop-blur hover:-translate-y-0.5 hover:border-[#00F0D1]/40 hover:shadow-[0_0_18px_rgba(0,240,209,0.18)]"
+              }`}
+            >
+              {active && (
+                <span
+                  aria-hidden
+                  className="absolute inset-0 -z-10 opacity-100"
+                  style={{ background: "linear-gradient(135deg, rgba(254,45,163,0.18) 0%, rgba(138,43,226,0.18) 100%)" }}
+                />
+              )}
+              {active && (
+                <span aria-hidden className="absolute inset-x-0 top-0 h-[2px]" style={{ background: "linear-gradient(90deg, #FE2DA3, #00F0D1)", boxShadow: "0 0 10px #FE2DA3" }} />
+              )}
+              <div className="flex items-center gap-3">
+                <span className={`text-2xl leading-none transition-transform duration-300 ${active ? "scale-110" : "group-hover:scale-110"}`}>{o.emoji}</span>
+                <div>
+                  <div className="font-[var(--font-display)] text-lg leading-tight tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>{o.title}</div>
+                  <div className="mt-0.5 text-xs normal-case tracking-normal text-[#F5F2EC]/60">{o.subtitle}</div>
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
-  const tools = [
-    { name: "ChatGPT", emoji: "💬", url: "chatgpt.com", note: "Best beginner choice" },
-    { name: "Claude", emoji: "🧠", url: "claude.ai", note: "Great for long drafts" },
-    { name: "Gemini", emoji: "✨", url: "gemini.google.com", note: "Good Google option" },
+// ===== Product Launchpad — Claude-only build flow =====
+function ProductLaunchpad({
+  output, plan, productType,
+}: {
+  output: string;
+  plan: PlanRow;
+  productType: "pdf_guide" | "checklist";
+}) {
+  if (!output) return null;
+
+  const productTypeLabel = productType === "pdf_guide" ? "PDF Guide / Ebook" : "Checklist / Workbook";
+
+  const writingPrompt = `You are helping me write a complete digital product from start to finish in one conversation. Build everything below in order — do not stop to ask questions, just write it all.
+
+MY PRODUCT PLAN:
+
+${output}
+
+MY DETAILS:
+
+- My niche: ${plan?.niche ?? ""}
+- Who I help: ${plan?.who_help ?? ""}
+- Their biggest frustration: ${plan?.their_frustration ?? ""}
+- Their dream outcome: ${plan?.their_dream ?? ""}
+- Product type: ${productTypeLabel}
+
+BUILD THIS FOR ME IN ONE RESPONSE:
+
+1. OUTLINE
+Write a complete outline: every chapter or section with 3-5 bullet points showing exactly what it covers.
+
+2. FULL WRITTEN CONTENT
+Write every chapter in full.
+- 300-500 words per chapter
+- Conversational, warm, no jargon
+- Real examples, not generic advice
+- Short paragraphs, easy to read
+
+3. WORKSHEETS & CHECKLISTS
+Create every worksheet, checklist, or fill-in page that belongs in this product. Each one fully built — with headings, numbered fields, checkboxes, or fill-in lines.
+
+4. COVER PAGE COPY
+Title, one-line subtitle, and 2 sentences describing who this is for and what they will get from it.
+
+When you have finished writing everything, say exactly: "WRITING COMPLETE — ready for Step 2: Design Prompt"`;
+
+  const designPrompt = `Now take everything you just wrote and design it as a beautiful, professional PDF using an Artifact.
+
+DESIGN REQUIREMENTS:
+
+- Cover page: large title, subtitle, "by [author]" line, and a clean background color that suits the topic
+- Table of contents page: all chapters/sections listed with clean styling
+- Chapter pages: large styled chapter number, chapter title as a header, body text with generous margins
+- Worksheet pages: fully designed with fill-in lines, checkbox fields, and clear section labels
+- Footer on every page: product title on the left, page number on the right
+- Consistent color palette throughout — pick 2-3 colors that feel right for this topic and audience
+- Clean readable font, plenty of white space
+- Professional enough to sell at $27-47
+
+Output this as a complete HTML document in an Artifact so I can see the full designed product and download it as a PDF.`;
+
+  const steps: { n: number; t: string; d: string }[] = [
+    { n: 1, t: "Copy the Writing Prompt", d: "Click 'Copy Writing Prompt' above — the whole thing copies in one click, nothing to select manually." },
+    { n: 2, t: "Open Claude.ai and paste", d: "Click 'Open Claude.ai' — it opens in a new tab. Sign up free or log in. Click the message box, paste with Ctrl+V (Windows) or Cmd+V on Mac, then press Enter. Claude writes your entire product — this takes 3-5 minutes." },
+    { n: 3, t: "Copy the Design Prompt and paste it next", d: "When Claude finishes writing and says 'WRITING COMPLETE', come back here and click 'Copy Design Prompt'. Go back to the SAME Claude tab, click the message box, paste and press Enter. Claude now designs your product — watch it appear on the right side of the screen." },
+    { n: 4, t: "Download your finished PDF", d: "When the design appears in the panel on the right, click the download arrow icon at the top of that panel. Your PDF saves to your computer's Downloads folder. That's your finished product — ready to sell." },
+    { n: 5, t: "Come back and set up your store", d: "Once your PDF is saved, come back here and click 'Next: Open Your Shop' below to set up your storefront in one sitting." },
   ];
 
-  const [copied, setCopied] = useState(false);
-  const [copiedTool, setCopiedTool] = useState<string | null>(null);
-  const copyPrompt = async () => {
-    await navigator.clipboard.writeText(prompt);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const [copied1, setCopied1] = useState(false);
+  const [copied2, setCopied2] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
+
+  const copy = async (text: string, setter: (v: boolean) => void) => {
+    await navigator.clipboard.writeText(text);
+    setter(true);
+    setTimeout(() => setter(false), 2000);
   };
 
-  const copyForTool = async (toolName: string) => {
-    await navigator.clipboard.writeText(prompt);
-    setCopiedTool(toolName);
-    setTimeout(() => setCopiedTool(null), 3000);
+  const openClaude = () => window.open("https://claude.ai", "_blank");
+
+  const loadLogoForPdf = async (): Promise<{ dataUrl: string; w: number; h: number } | null> => {
+    try {
+      const res = await fetch(xcelerateLogo);
+      const blob = await res.blob();
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = reject;
+        r.readAsDataURL(blob);
+      });
+      const dims = await new Promise<{ w: number; h: number }>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+        img.onerror = reject;
+        img.src = dataUrl;
+      });
+      return { dataUrl, w: dims.w, h: dims.h };
+    } catch {
+      return null;
+    }
+  };
+
+  const handleDownloadInstructions = async () => {
+    const logo = await loadLogoForPdf();
+    const doc = new jsPDF({ unit: "pt", format: "letter" });
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 60;
+    const headerH = 72;
+    const contentTop = headerH + 8 + 40;
+    const contentBottom = pageH - 60;
+    const maxW = pageW - margin * 2;
+    const BODY_SIZE = 11;
+    const BODY_LINE_H = BODY_SIZE * 1.55;
+
+    const PINK: [number, number, number] = [254, 45, 163];
+    const BLACK: [number, number, number] = [10, 10, 12];
+    const PURPLE: [number, number, number] = [138, 43, 226];
+    const TEAL: [number, number, number] = [0, 176, 156];
+    const INK: [number, number, number] = [24, 24, 28];
+    const BODY: [number, number, number] = [55, 55, 62];
+    const MUTED: [number, number, number] = [130, 130, 138];
+
+    let y = contentTop;
+    let page = 1;
+
+    const drawPageChrome = () => {
+      doc.setFillColor(...BLACK);
+      doc.rect(0, 0, pageW, headerH, "F");
+      doc.setFillColor(...PINK);
+      doc.rect(0, headerH, pageW, 6, "F");
+      doc.setFillColor(...TEAL);
+      doc.rect(0, headerH + 6, pageW, 2, "F");
+      if (logo) {
+        const targetH = 44;
+        const targetW = (logo.w / logo.h) * targetH;
+        const cappedW = Math.min(targetW, 220);
+        const finalH = (logo.h / logo.w) * cappedW;
+        const yOffset = (headerH - finalH) / 2;
+        doc.addImage(logo.dataUrl, "PNG", margin, yOffset, cappedW, finalH);
+      } else {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(22);
+        doc.setTextColor(255, 255, 255);
+        doc.text("XCELERATE", margin, headerH / 2 + 7);
+      }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(255, 255, 255);
+      doc.text("ALL GAS · NO BRAKES", pageW - margin, headerH / 2 + 3, { align: "right" });
+      doc.setDrawColor(...PINK);
+      doc.setLineWidth(1);
+      doc.line(margin, pageH - 38, pageW - margin, pageH - 38);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(...MUTED);
+      doc.text("xcelerate · product instructions", margin, pageH - 22);
+      doc.text(`page ${page}`, pageW - margin, pageH - 22, { align: "right" });
+    };
+
+    const newPage = () => {
+      doc.addPage();
+      page += 1;
+      drawPageChrome();
+      y = contentTop;
+    };
+
+    const ensureSpace = (needed: number) => { if (y + needed > contentBottom) newPage(); };
+
+    const writePlain = (text: string, size = BODY_SIZE, color: [number, number, number] = BODY, lineH = BODY_LINE_H) => {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(size);
+      doc.setTextColor(...color);
+      const paragraphs = text.split(/\n/);
+      for (const para of paragraphs) {
+        if (!para.trim()) { y += lineH * 0.5; continue; }
+        const lines = doc.splitTextToSize(para, maxW) as string[];
+        for (const ln of lines) {
+          ensureSpace(lineH);
+          doc.text(ln, margin, y);
+          y += lineH;
+        }
+      }
+    };
+
+    const writeSectionHeader = (label: string) => {
+      ensureSpace(40);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(...PURPLE);
+      doc.text("▮ SECTION", margin, y);
+      y += 14;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(15);
+      doc.setTextColor(...PINK);
+      const lines = doc.splitTextToSize(label.toUpperCase(), maxW) as string[];
+      for (const ln of lines) { doc.text(ln, margin, y); y += 20; }
+      doc.setDrawColor(...PURPLE);
+      doc.setLineWidth(1.5);
+      doc.line(margin, y, margin + 48, y);
+      y += 18;
+    };
+
+    drawPageChrome();
+    y = contentTop;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(...PINK);
+    doc.text("TRACK 02 · BUILD YOUR THING", margin, y);
+    y += 26;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(28);
+    doc.setTextColor(...INK);
+    doc.text("YOUR PRODUCT BUILD INSTRUCTIONS", margin, y);
+    y += 30;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(...MUTED);
+    const subLines = doc.splitTextToSize("Keep this safe — everything you need to build your product with Claude.", maxW) as string[];
+    for (const ln of subLines) { doc.text(ln, margin, y); y += 16; }
+    y += 18;
+
+    writeSectionHeader("Your Product Plan");
+    writePlain(output.replace(/\*\*/g, ""));
+    y += 8;
+
+    writeSectionHeader("The Writing Prompt — Paste This First In Claude");
+    writePlain(writingPrompt);
+    y += 8;
+
+    writeSectionHeader("The Design Prompt — Paste This Second In Claude");
+    writePlain(designPrompt);
+    y += 8;
+
+    writeSectionHeader("Your 5-Step Instructions");
+    for (const s of steps) {
+      writePlain(`${s.n}. ${s.t}`, BODY_SIZE, INK);
+      writePlain(s.d);
+      y += 4;
+    }
+
+    writeSectionHeader("Important Links");
+    writePlain(`Claude.ai: https://claude.ai`);
+    writePlain(`Your Xcelerate dashboard: ${typeof window !== "undefined" ? window.location.origin + "/dashboard" : "/dashboard"}`);
+
+    doc.save("xcelerate-product-instructions.pdf");
+    setDownloaded(true);
+    setTimeout(() => setDownloaded(false), 2000);
   };
 
   return (
-    <div className="mt-8 rounded-2xl border-2 border-dashed border-[#FE2DA3]/50 bg-[#FE2DA3]/[0.06] p-6 shadow-[0_0_24px_rgba(254,45,163,0.12)]">
-      <div className="mb-4 flex items-start gap-3">
-        <span className="text-3xl">🎸</span>
-        <div>
-          <h3 className="text-2xl tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>Now cut the record</h3>
-          <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">
-            Pick your AI helper below. In preview, outside sites don't open automatically — we copy the prompt first so you can paste it.
-          </p>
+    <div className="mt-8 space-y-6">
+      {/* Section header */}
+      <div className="relative z-10 flex items-start gap-4">
+        <div
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-2xl"
+          style={{ background: "linear-gradient(135deg, #FE2DA3 0%, #8A2BE2 100%)", boxShadow: "0 0 24px rgba(254,45,163,0.55), inset 0 1px 0 rgba(255,255,255,0.3)" }}
+        >
+          <span className="drop-shadow-sm">🧠</span>
+        </div>
+        <div className="min-w-0">
+          <p className="xcel-kicker">Your Build Instructions</p>
+          <h2 className="mt-1 text-3xl leading-tight tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>Build It With Claude</h2>
+          <p className="mt-1.5 text-sm normal-case tracking-normal text-[#F5F2EC]/70">Two prompts. One conversation. A finished product.</p>
         </div>
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        {tools.map((tool) => (
+      <p className="text-sm leading-relaxed text-[#F5F2EC]/80">
+        Claude.ai will write AND design your complete product in one conversation. You'll need Claude Pro ($20/mo) — but you only need it for one month to build your product, then cancel. Think of it as a $20 product creation fee.
+      </p>
+
+      {/* Prompt Block 1 — Writing */}
+      <div className="relative overflow-hidden rounded-2xl border-2 border-[#FE2DA3]/40 bg-black/60 p-6 backdrop-blur">
+        <span aria-hidden className="absolute inset-x-0 top-0 h-[2px]" style={{ background: "linear-gradient(90deg, #FE2DA3, #8A2BE2, #00F0D1)", boxShadow: "0 0 10px #FE2DA3" }} />
+        <div className="mb-3">
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#FE2DA3]">Step 01</p>
+          <h3 className="mt-1 text-2xl leading-tight tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>The Writing Prompt</h3>
+          <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">Paste this first — Claude writes your entire product</p>
+        </div>
+        <textarea
+          readOnly
+          value={writingPrompt}
+          className="w-full min-h-[180px] resize-none rounded-xl bg-black/50 border border-white/10 px-4 py-3 text-sm text-[#F5F2EC] font-mono leading-relaxed focus-visible:outline-none"
+        />
+        <div className="mt-4 flex flex-wrap gap-3">
           <button
-            key={tool.name}
             type="button"
-            onClick={() => copyForTool(tool.name)}
-            className="rounded-xl border border-white/10 bg-black/50 p-4 text-left text-[#F5F2EC] backdrop-blur transition-all hover:-translate-y-0.5 hover:border-[#FE2DA3] hover:shadow-[0_0_24px_rgba(254,45,163,0.35)]"
+            onClick={() => copy(writingPrompt, setCopied1)}
+            className="xcel-btn-neon group relative overflow-hidden rounded-xl px-5 py-3 text-sm"
           >
-            <div className="flex items-center gap-2 text-lg tracking-wide" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}><span>{tool.emoji}</span>{tool.name}</div>
-            <p className="mt-1 text-xs font-semibold normal-case tracking-normal text-[#F5F2EC]/60">{tool.note}</p>
-            <p className="mt-3 font-mono text-xs font-bold uppercase tracking-widest text-[#FE2DA3]">
-              {copiedTool === tool.name ? "✓ Prompt copied" : "Copy prompt"}
-            </p>
-            <p className="mt-1 text-xs normal-case tracking-normal text-[#F5F2EC]/50">Then open {tool.url} in a fresh tab and paste.</p>
+            <span className="relative z-10">{copied1 ? "✓ Copied!" : "📋 Copy Writing Prompt"}</span>
           </button>
-        ))}
+          <button
+            type="button"
+            onClick={openClaude}
+            className="xcel-btn-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm"
+          >
+            Open Claude.ai →
+          </button>
+        </div>
       </div>
-      <div className="mt-3 flex flex-wrap gap-3">
+
+      {/* Prompt Block 2 — Design */}
+      <div className="relative overflow-hidden rounded-2xl border-2 border-[#8A2BE2]/40 bg-black/60 p-6 backdrop-blur">
+        <span aria-hidden className="absolute inset-x-0 top-0 h-[2px]" style={{ background: "linear-gradient(90deg, #8A2BE2, #00F0D1)", boxShadow: "0 0 10px #8A2BE2" }} />
+        <div className="mb-3">
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: "#C8A4FF" }}>Step 02</p>
+          <h3 className="mt-1 text-2xl leading-tight tracking-wide text-[#F5F2EC]" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>The Design Prompt</h3>
+          <p className="mt-1 text-sm normal-case tracking-normal text-[#F5F2EC]/70">Paste this after Step 1 finishes — same conversation</p>
+        </div>
+        <div className="mb-3 rounded-xl border border-[#00F0D1]/30 bg-[#00F0D1]/10 px-4 py-3 text-sm text-[#00F0D1]">
+          ⚡ Paste this into the SAME Claude conversation immediately after the writing prompt finishes — do not start a new chat.
+        </div>
+        <textarea
+          readOnly
+          value={designPrompt}
+          className="w-full min-h-[180px] resize-none rounded-xl bg-black/50 border border-white/10 px-4 py-3 text-sm text-[#F5F2EC] font-mono leading-relaxed focus-visible:outline-none"
+        />
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => copy(designPrompt, setCopied2)}
+            className="xcel-btn-neon group relative overflow-hidden rounded-xl px-5 py-3 text-sm"
+          >
+            <span className="relative z-10">{copied2 ? "✓ Copied!" : "📋 Copy Design Prompt"}</span>
+          </button>
+          <button
+            type="button"
+            onClick={openClaude}
+            className="xcel-btn-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm"
+          >
+            Open Claude.ai →
+          </button>
+        </div>
+      </div>
+
+      {/* Step-by-step card */}
+      <div
+        className="relative overflow-hidden rounded-2xl border-2 border-[#FE2DA3]/30 p-7 shadow-[0_0_32px_rgba(254,45,163,0.18)] sm:p-9"
+        style={{ background: "#F5F2EC" }}
+      >
+        <span aria-hidden className="absolute inset-x-0 top-0 h-[3px]" style={{ background: "linear-gradient(90deg, #FE2DA3, #8A2BE2, #00F0D1)" }} />
+        <div className="mb-5 flex items-center gap-3">
+          <span
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-xl text-white shadow-[0_0_18px_rgba(254,45,163,0.55)]"
+            style={{ background: "linear-gradient(135deg, #FE2DA3, #8A2BE2)" }}
+          >🎬</span>
+          <div>
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#8A2BE2]">How This Works — 5 Steps</p>
+            <h3 className="text-2xl leading-tight tracking-wide text-slate-900 sm:text-3xl" style={{ fontFamily: "Anton, sans-serif", textTransform: "uppercase" }}>
+              From Blank Page to Finished Product
+            </h3>
+            <p className="mt-1 text-sm normal-case tracking-normal text-slate-700">From blank page to finished product in one sitting.</p>
+          </div>
+        </div>
+        <div className="space-y-4">
+          {steps.map((s) => (
+            <div key={s.n} className="flex items-start gap-3">
+              <span
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-extrabold text-white shadow-[0_0_12px_rgba(254,45,163,0.5)]"
+                style={{ background: "linear-gradient(135deg, #FE2DA3, #8A2BE2)" }}
+              >{s.n}</span>
+              <div>
+                <p className="text-base font-bold normal-case tracking-normal text-slate-900" style={{ fontFamily: "var(--font-sub)" }}>{s.t}</p>
+                <p className="mt-1 text-sm leading-relaxed normal-case tracking-normal text-slate-700">{s.d}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-6 text-center text-xs normal-case tracking-normal text-slate-500">
+          💡 Claude's free account may work for shorter products. For longer guides (10+ pages), Claude Pro ($20/mo) gives you the best results. You only need it for one month.
+        </p>
+      </div>
+
+      {/* Download instructions */}
+      <div>
         <button
-          onClick={copyPrompt}
-          className="xcel-btn-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-xs"
+          type="button"
+          onClick={handleDownloadInstructions}
+          className="xcel-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm"
         >
-          {copied ? "✓ Copied prompt!" : "📋 Copy the prompt"}
+          {downloaded ? "✓ Downloaded!" : "⬇ Download These Instructions as PDF"}
         </button>
       </div>
-      <p className="mt-4 text-xs normal-case tracking-normal text-[#F5F2EC]/55">
-        💡 This avoids preview-window errors. After publishing, the same copy-and-paste flow works on the live site.
-      </p>
     </div>
   );
 }
