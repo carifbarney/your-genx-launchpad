@@ -283,6 +283,7 @@ function ToolPanel({
   const [theirDream, setTheirDream] = useState(plan?.their_dream ?? "");
   // product
   const [productNotes, setProductNotes] = useState("");
+  const [productType, setProductType] = useState<"pdf_guide" | "checklist">("pdf_guide");
   // storefront
   const [storefrontNotes, setStorefrontNotes] = useState("");
   // launch plan
