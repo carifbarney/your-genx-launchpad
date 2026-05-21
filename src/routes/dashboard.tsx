@@ -509,6 +509,7 @@ function ToolPanel({
           {tool === "product" && (
             <>
               <ContextSummary plan={plan} show={["niche", "starting_point_output"]} />
+              <ProductTypeSelector value={productType} onChange={setProductType} disabled={streaming} />
               <Field
                 label="Any wishes for your product? (totally optional)"
                 hint="Skip this and we'll pick what fits you best."
