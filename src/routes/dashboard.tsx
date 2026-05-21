@@ -133,8 +133,8 @@ function Dashboard() {
 
       <section className="relative mx-auto max-w-5xl px-6 py-10">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4 xcel-fade-up">
-          <div>
-            <h1 className="relative inline-block text-left">
+          <div className="flex flex-col items-start">
+            <h1 className="relative inline-block text-left -ml-3 sm:-ml-4 md:-ml-5">
               <span className="sr-only">Xcelerate Ignition Lab</span>
               <span
                 aria-hidden
@@ -152,7 +152,7 @@ function Dashboard() {
                 className="relative h-28 w-auto sm:h-36 md:h-44 drop-shadow-[0_0_22px_rgba(254,45,163,0.7)]"
               />
             </h1>
-            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#FE2DA3]/40 bg-black/60 px-3 py-1 backdrop-blur">
+            <div className="mt-4 flex w-fit items-center gap-2 rounded-full border border-[#FE2DA3]/40 bg-black/60 px-3 py-1 backdrop-blur">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#00F0D1] shadow-[0_0_8px_#00F0D1]" />
               <span className="xcel-kicker text-[#F5F2EC]">
                 {completedCount === 0 ? "Side A — Track 1" : completedCount === 4 ? "Album complete — go gold" : `${completedCount} of 4 in the can`}
