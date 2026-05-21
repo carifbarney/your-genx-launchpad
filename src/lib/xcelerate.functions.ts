@@ -112,6 +112,7 @@ const startingPointSchema = z.object({
 const productSchema = z.object({
   tool: z.literal("product"),
   productNotes: z.string().trim().max(1000).default(""),
+  productType: z.string().trim().max(50).default("pdf_guide"),
 });
 
 const storefrontSchema = z.object({
