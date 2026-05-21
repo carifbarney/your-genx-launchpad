@@ -658,7 +658,7 @@ function ToolPanel({
                 <OutputCards output={output} streaming={streaming} />
               )}
               {!streaming && tool === "product" && (
-                <BuildItWithAI output={output} plan={plan} />
+                <ProductLaunchpad output={output} plan={plan} productType={productType} />
               )}
               {!streaming && tool === "storefront" && (
                 <StorefrontWalkthrough />
