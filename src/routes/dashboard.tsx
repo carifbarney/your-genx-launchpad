@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import xcelerateLogo from "@/assets/xcelerate-logo.png";
 import { jsPDF } from "jspdf";
 import { generateXcelerateResponse, getRemainingRequests, getUserPlan, clearUserPlan } from "@/lib/xcelerate.functions";
+import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Xcelerate — Your Launch System" }] }),
